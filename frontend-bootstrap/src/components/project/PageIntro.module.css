@@ -1,0 +1,65 @@
+.intro {
+  margin-bottom: 1.9rem;
+}
+
+.title {
+  margin: 0 0 0.45rem;
+  color: #174da6;
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.subtitle {
+  max-width: 820px;
+  margin: 0;
+  color: #69758a;
+  font-size: 0.84rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.shareButton {
+  display: inline-flex;
+  min-width: 112px;
+  height: 42px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: 0;
+  border-radius: 0.7rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2255c7, #00b9d4);
+  box-shadow: 0 9px 20px rgba(26, 91, 196, 0.2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.shareButton:hover,
+.shareButton:focus-visible {
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(26, 91, 196, 0.28);
+}
+
+.toast {
+  position: fixed;
+  z-index: 1090;
+  right: 1rem;
+  bottom: 1rem;
+  width: auto;
+  box-shadow: 0 12px 28px rgba(31, 62, 109, 0.18);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 575.98px) {
+  .intro {
+    margin-bottom: 1.45rem;
+  }
+
+  .subtitle {
+    font-size: 0.73rem;
+  }
+}

@@ -1,0 +1,43 @@
+.logo {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.55rem;
+  color: #1d5bc7;
+}
+
+.inverse {
+  color: #ffffff;
+}
+
+.mark {
+  width: 36px;
+  height: 33px;
+  flex: 0 0 auto;
+}
+
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  color: currentColor;
+  line-height: 1;
+}
+
+.wordmark strong {
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.wordmark small {
+  margin-top: 0.2rem;
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 767.98px) {
+  .mark {
+    width: 32px;
+    height: 29px;
+  }
+}

@@ -1,0 +1,31 @@
+.card {
+  background: transparent;
+}
+
+.image {
+  width: 100%;
+  aspect-ratio: 1.45;
+  border-radius: 0.75rem;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(35, 70, 112, 0.08);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.card:hover .image {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(35, 70, 112, 0.15);
+}
+
+.name {
+  margin: 0 0 0.65rem;
+  color: #174da6;
+  font-size: 0.79rem;
+  font-weight: 700;
+}
+
+.description {
+  margin: 0;
+  color: #6b7890;
+  font-size: 0.66rem;
+  font-weight: 500;
+}

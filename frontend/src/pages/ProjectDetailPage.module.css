@@ -1,0 +1,84 @@
+.paginationNav {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  justify-content: center;
+  margin: 2rem auto 0;
+  padding: 0.75rem;
+  border: 1px solid #dce8f7;
+  border-radius: 1.5rem;
+  background: linear-gradient(180deg, #fbfdff 0%, #f3f8ff 100%);
+  box-shadow: 0 10px 28px rgba(21, 89, 199, 0.1);
+}
+
+.pagination :global(.MuiPagination-ul) {
+  flex-wrap: nowrap;
+  gap: 0.55rem;
+}
+
+.pagination :global(.MuiPaginationItem-root) {
+  min-width: 2.375rem;
+  height: 2.375rem;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 0.5625rem;
+  color: #52627a;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  transition:
+    transform 160ms ease,
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.pagination :global(.MuiPaginationItem-root:hover) {
+  color: #1559c7;
+  background-color: #eaf3ff;
+  border-color: #c9dcf7;
+  transform: translateY(-1px);
+}
+
+.pagination :global(.MuiPaginationItem-root.Mui-selected) {
+  color: #ffffff;
+  border-color: transparent;
+  background: linear-gradient(135deg, #1559c7 0%, #0aaed0 100%);
+  box-shadow: 0 6px 14px rgba(21, 89, 199, 0.28);
+}
+
+.pagination :global(.MuiPaginationItem-root.Mui-selected:hover) {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f4fac 0%, #09a5c0 100%);
+}
+
+.pagination :global(.MuiPaginationItem-root.Mui-disabled) {
+  opacity: 0.35;
+}
+
+.pagination :global(.MuiPaginationItem-previousNext),
+.pagination :global(.MuiPaginationItem-firstLast) {
+  color: #1559c7;
+  background-color: #ffffff;
+  border-color: #dce8f7;
+}
+
+@media (max-width: 599.95px) {
+  .paginationNav {
+    padding: 0.5rem;
+  }
+
+  .pagination :global(.MuiPagination-ul) {
+    gap: 0.2rem;
+  }
+
+  .pagination :global(.MuiPaginationItem-root) {
+    min-width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+  }
+
+  .pagination :global(.MuiPaginationItem-firstLast) {
+    display: none;
+  }
+}

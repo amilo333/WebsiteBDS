@@ -1,0 +1,33 @@
+.wrapper {
+  padding: 1.15rem 0;
+  --bs-breadcrumb-divider: '/';
+  --bs-breadcrumb-divider-color: #8190a5;
+  --bs-breadcrumb-item-active-color: #344258;
+}
+
+.wrapper li,
+.wrapper a {
+  color: #344258;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.wrapper a {
+  color: #1e5bc4;
+  text-decoration: none;
+}
+
+.wrapper a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 575.98px) {
+  .wrapper {
+    padding: 0.9rem 0;
+  }
+
+  .wrapper li,
+  .wrapper a {
+    font-size: 0.64rem;
+  }
+}
