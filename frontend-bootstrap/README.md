@@ -1,6 +1,6 @@
 # Website BDS - Bootstrap
 
-Phiên bản React + TypeScript + Vite của website BDS, được chuyển từ Material UI sang Bootstrap 5 và CSS Modules.
+Phiên bản React + TypeScript + Vite của website BDS, sử dụng Bootstrap 5 và CSS Modules.
 
 ## Chạy dự án
 
