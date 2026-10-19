@@ -1,11 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import App from "./App";
+import App from "./app";
 import { theme } from "./theme";
-import "./index.css";
+import "./index.scss";
 
 const queryClient = new QueryClient();
 

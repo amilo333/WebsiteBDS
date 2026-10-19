@@ -7,7 +7,7 @@ export type ProjectTabKey =
   | 'policy'
   | 'news'
 
-export interface ProjectZone {
+export type ProjectZone = {
   id: string
   name: string
   image: string
@@ -15,7 +15,7 @@ export interface ProjectZone {
   area: string
 }
 
-export interface ProjectData {
+export type ProjectData = {
   id: string
   name: string
   tagline: string
@@ -23,7 +23,7 @@ export interface ProjectData {
   zones: ProjectZone[]
 }
 
-export interface PhaseFileInfo {
+export type PhaseFileInfo = {
   id: number
   code: string
   fileName: string
@@ -40,7 +40,7 @@ export interface PhaseFileInfo {
   fullLink: string
 }
 
-export interface Phase {
+export type Phase = {
   id: number
   projectId: number
   name: string
@@ -49,7 +49,7 @@ export interface Phase {
   sortOrder: number
 }
 
-export interface PhaseSearchResponse {
+export type PhaseSearchResponse = {
   code: string
   message: string
   debug: unknown | null

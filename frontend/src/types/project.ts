@@ -7,23 +7,23 @@ export type ProjectTabKey =
   | "policy"
   | "news";
 
-export interface ProjectZone {
+export type ProjectZone = {
   id: string;
   name: string;
   image: string;
   units: string;
   area: string;
-}
+};
 
-export interface ProjectData {
+export type ProjectData = {
   id: string;
   name: string;
   tagline: string;
   heroImage: string;
   zones: ProjectZone[];
-}
+};
 
-export interface PhaseFileInfo {
+export type PhaseFileInfo = {
   id: number;
   code: string;
   fileName: string;
@@ -38,18 +38,18 @@ export interface PhaseFileInfo {
   refType: string;
   refCode: string;
   fullLink: string;
-}
+};
 
-export interface Phase {
+export type Phase = {
   id: number;
   projectId: number;
   name: string;
   shortDescription: string | null;
   fileInfo: PhaseFileInfo | null;
   sortOrder: number;
-}
+};
 
-export interface PhaseSearchResponse {
+export type PhaseSearchResponse = {
   code: string;
   message: string;
   debug: unknown | null;
@@ -60,4 +60,4 @@ export interface PhaseSearchResponse {
   totalElements: number;
   totalPages: number;
   data: Phase[];
-}
+};
