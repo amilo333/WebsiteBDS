@@ -1,5 +1,6 @@
 # Website BDS - Bootstrap
 
+<<<<<<< HEAD
 Phiên bản React + TypeScript + Vite của website BDS, được chuyển từ Material UI sang Bootstrap 5 và SCSS Modules.
 
 ## Quy ước mã nguồn
@@ -10,6 +11,9 @@ Phiên bản React + TypeScript + Vite của website BDS, được chuyển từ
 - Mỗi page nằm trong `pages/<ten-trang>/index.tsx` và đặt stylesheet cùng thư mục.
 - Dùng `type` cho kiểu dữ liệu và props.
 - Import router trực tiếp từ `react-router`.
+=======
+Phiên bản React + TypeScript + Vite của website BDS, sử dụng Bootstrap 5 và CSS Modules.
+>>>>>>> fae0c55dc42f9da8f77512f6321609e4eb11ef92
 
 ## Chạy dự án
 
