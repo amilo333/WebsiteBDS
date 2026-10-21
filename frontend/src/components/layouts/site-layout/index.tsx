@@ -5,15 +5,16 @@ import { Footer } from '../footer'
 
 type SiteLayoutProps = {
   children: ReactNode
+  footerClassName?: string
   showFooter?: boolean
 }
 
-export function SiteLayout({ children, showFooter = true }: SiteLayoutProps) {
+export function SiteLayout({ children, footerClassName, showFooter = true }: SiteLayoutProps) {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
       <Box component="main" sx={{ flex: 1 }}>{children}</Box>
-      {showFooter && <Footer />}
+      {showFooter && <Footer className={footerClassName} />}
     </Box>
   )
 }

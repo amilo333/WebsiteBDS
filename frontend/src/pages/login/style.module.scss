@@ -1,0 +1,21 @@
+.page {
+  min-height: 480px;
+  padding: 46px 0;
+  background: #f6f8fc;
+}
+
+.container:global(.MuiContainer-root) {
+  display: flex;
+  justify-content: center;
+}
+
+.footer:global(.MuiBox-root) {
+  margin-top: 0;
+}
+
+@media (max-width: 599.95px) {
+  .page {
+    min-height: 420px;
+    padding: 28px 0;
+  }
+}

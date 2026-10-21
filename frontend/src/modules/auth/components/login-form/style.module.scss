@@ -1,0 +1,53 @@
+.panel {
+  width: min(100%, 420px);
+  padding: 28px;
+  border: 1px solid #e6ebf3;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 34px rgba(32, 72, 140, 0.08);
+}
+
+.title:global(.MuiTypography-root) {
+  color: #2054b5;
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.description:global(.MuiTypography-root) {
+  margin-top: 7px;
+  color: #6b7890;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.form {
+  margin-top: 22px;
+}
+
+.field:global(.MuiTextField-root) {
+  margin-bottom: 4px;
+
+  :global(.MuiInputBase-root) {
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  :global(.MuiInputLabel-root),
+  :global(.MuiFormHelperText-root) {
+    font-size: 12px;
+  }
+}
+
+.submitButton:global(.MuiButton-root) {
+  height: 40px;
+  margin-top: 4px;
+}
+
+@media (max-width: 599.95px) {
+  .panel {
+    padding: 22px 18px;
+  }
+}

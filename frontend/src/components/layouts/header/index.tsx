@@ -68,6 +68,8 @@ export function Header() {
               </Typography>
             </Stack>
             <IconButton
+              component={RouterLink}
+              to="/doi-mat-khau"
               aria-label="Tài khoản"
               sx={{ bgcolor: 'primary.main', color: '#fff', width: 34, height: 34, '&:hover': { bgcolor: 'primary.dark' } }}
             >

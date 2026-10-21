@@ -17,14 +17,13 @@ export function PageIntro({ title, subtitle }: PageIntroProps) {
 
   const handleShare = async () => {
     try {
-      if (navigator.share) {
-        await navigator.share({ title, text: subtitle, url: window.location.href })
-      } else {
-        await navigator.clipboard.writeText(window.location.href)
-        setMessage('Đã sao chép đường dẫn')
-      }
+      const shareUrl = new URL(window.location.href)
+      shareUrl.hash = 'phan-khu'
+
+      await navigator.clipboard.writeText(shareUrl.toString())
+      setMessage('Đã sao chép đường dẫn phân khu')
     } catch {
-      setMessage('Chưa thể chia sẻ đường dẫn')
+      setMessage('Không thể sao chép đường dẫn')
     }
   }
 

@@ -4,10 +4,12 @@
 
 - Tên file và thư mục dùng kebab-case; tên React component vẫn dùng PascalCase.
 - Mỗi component có thư mục riêng, đặt phần triển khai tại `index.tsx`.
-- `components/core/`: các component cơ bản, tái sử dụng như logo, breadcrumb và tiêu đề trang; `index.ts` export toàn bộ component trong nhóm.
-- `components/layouts/`: header, footer và khung bố cục trang; `index.ts` export toàn bộ component trong nhóm.
-- `components/composites/`: các component nội dung dự án như tab và thẻ phân khu; `index.ts` export toàn bộ component trong nhóm.
-- Mỗi page nằm trong `pages/<ten-trang>/index.tsx`; stylesheet riêng đặt cùng thư mục với tên `style.module.scss`.
+- `components/`: chỉ chứa các component dùng chung toàn ứng dụng; mỗi nhóm có `index.ts` export component công khai.
+- `modules/<ten-module>/components/`: chứa các component chỉ phục vụ module đó.
+- `modules/<ten-module>/common/api/`: chứa kiểu dữ liệu và hàm gọi API của module.
+- `modules/<ten-module>/common/hooks/`: chứa các hook xử lý trạng thái và nghiệp vụ của module.
+- Chỉ tạo `index.ts` khi thư mục cần tổng hợp từ hai file nghiệp vụ trở lên; thư mục chỉ có một file được import trực tiếp.
+- Mỗi page nằm trong `pages/<ten-trang>/index.tsx` và chỉ ghép layout với các component của module; stylesheet của component đặt cạnh component với tên `style.module.scss`.
 - Style toàn cục nằm trong `src/index.scss`; Sass được cài trong devDependencies.
 - Dùng `type` cho các kiểu dữ liệu và props; ESLint kiểm tra quy ước này.
 - Import các API router trực tiếp từ `react-router` theo phiên bản 7 đang sử dụng.
@@ -16,17 +18,36 @@
 src/
 ├── app/index.tsx
 ├── api/
-│   ├── http-client.ts
-│   └── phase-api.ts
+│   └── http-client.ts
 ├── components/
 │   ├── core/<ten-component>/index.tsx
-│   ├── layouts/<ten-component>/index.tsx
-│   └── composites/<ten-component>/index.tsx
+│   └── layouts/<ten-component>/index.tsx
+├── modules/
+│   └── <ten-module>/
+│       ├── common/
+│       │   ├── api/
+│       │   │   └── <ten-api>.ts
+│       │   ├── constants/
+│       │   │   └── <ten-constant>.ts
+│       │   ├── data/
+│       │   │   └── <ten-data>.ts
+│       │   ├── hooks/
+│       │   │   └── <ten-hook>.ts
+│       │   ├── schemas/
+│       │   │   └── <ten-schema>.ts
+│       │   ├── types/
+│       │   │   └── <ten-type>.ts
+│       │   └── index.ts
+│       ├── components/
+│       │   ├── <ten-component>/
+│       │   │   ├── index.tsx
+│       │   │   └── style.module.scss
+│       │   └── index.ts
+│       └── index.ts
 ├── pages/
 │   └── project-detail/
-│       ├── index.tsx
-│       └── style.module.scss
-└── types/project.ts
+│       └── index.tsx
+└── index.scss
 ```
 
 Chạy `npm install` để cài dependencies, `npm run dev` để phát triển,

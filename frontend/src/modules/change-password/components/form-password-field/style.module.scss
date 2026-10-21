@@ -1,0 +1,54 @@
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  margin-bottom: 6px;
+  color: #333333;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.required {
+  color: #f04444;
+}
+
+.textField {
+  :global(.MuiOutlinedInput-root) {
+    height: 36px;
+    border-radius: 6px;
+    background-color: #ffffff;
+
+    fieldset {
+      border-color: #cdd2d8;
+    }
+
+    &:hover fieldset {
+      border-color: #9da8b5;
+    }
+
+    &:global(.Mui-focused) fieldset {
+      border-width: 1px;
+      border-color: #2456c8;
+    }
+  }
+
+  :global(.MuiOutlinedInput-input) {
+    padding: 9px 10px;
+    font-size: 12px;
+
+    &::placeholder {
+      color: #a1a6ad;
+      opacity: 1;
+    }
+  }
+
+  :global(.MuiFormHelperText-root) {
+    min-height: 17px;
+    margin: 3px 0 0;
+    font-size: 10px;
+    line-height: 14px;
+  }
+}

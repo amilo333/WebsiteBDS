@@ -1,0 +1,47 @@
+.hero {
+  position: relative;
+  margin-bottom: 20px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e7f6fb;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1.9;
+  object-fit: cover;
+  object-position: center 58%;
+}
+
+.dots {
+  position: absolute;
+  bottom: 13px;
+  left: 50%;
+  display: flex;
+  gap: 6px;
+  transform: translateX(-50%);
+
+  span {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+  }
+
+  .activeDot {
+    width: 21px;
+    background: #0aaed0;
+  }
+}
+
+@media (max-width: 599.95px) {
+  .hero {
+    margin-bottom: 16px;
+  }
+
+  .image {
+    aspect-ratio: 1.35;
+  }
+}

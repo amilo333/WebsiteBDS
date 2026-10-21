@@ -1,0 +1,20 @@
+.button:global(.MuiButton-root) {
+  min-height: 32px;
+  padding: 6px 18px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: none;
+}
+
+.gradient:global(.MuiButton-root) {
+  color: #ffffff;
+  background: linear-gradient(110deg, #2d52ca 0%, #09b8d1 100%);
+  box-shadow: none;
+
+  &:hover {
+    background: linear-gradient(110deg, #2448b6 0%, #08a9c0 100%);
+    box-shadow: 0 5px 12px rgba(32, 91, 198, 0.2);
+  }
+}
