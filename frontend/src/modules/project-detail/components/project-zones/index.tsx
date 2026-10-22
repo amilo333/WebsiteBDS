@@ -1,10 +1,12 @@
 import { Alert, CircularProgress, Pagination, Typography } from '@mui/material'
-import { useProjectPhases } from '../../common'
+import { useProjectPhases, useScrollToProjectSection } from '../../common'
 import type { ProjectZonesProps } from '../../common/types/project'
 import { ZoneCard } from '../zone-card'
 import styles from './style.module.scss'
 
 export function ProjectZones({ projectId }: ProjectZonesProps) {
+  useScrollToProjectSection()
+
   const {
     phases,
     totalPages,
@@ -17,7 +19,7 @@ export function ProjectZones({ projectId }: ProjectZonesProps) {
   } = useProjectPhases(projectId)
 
   return (
-    <section id="phan-khu" aria-label="Danh sách phân khu">
+    <section id="phan-khu" className={styles.section} aria-label="Danh sách phân khu">
       <div
         className={`${styles.grid} ${isFetching && !isPending ? styles.fetching : ''}`}
         aria-busy={isFetching}

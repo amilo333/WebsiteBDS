@@ -12,8 +12,6 @@ export type ProjectTabKey =
 export type ProjectData = {
   id: string
   apiId: number
-  name: string
-  tagline: string
   heroImage: string
 }
 
@@ -54,6 +52,27 @@ export type PhaseSearchResponse = {
   totalElements: number
   totalPages: number
   data: Phase[]
+}
+
+export type PortalProject = {
+  id: number
+  code: string
+  name: string
+  shortDescription: string | null
+  fileInfo: PhaseFileInfo | null
+}
+
+export type ProjectSearchResponse = {
+  code: string
+  message: string
+  debug: unknown | null
+  requestId: string
+  serverTime: string
+  pageNumber: number
+  pageSize: number
+  totalElements: number
+  totalPages: number
+  data: PortalProject[]
 }
 
 export type GetPhasesParams = {

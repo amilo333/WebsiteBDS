@@ -17,8 +17,7 @@ export type ProjectZone = {
 
 export type ProjectData = {
   id: string
-  name: string
-  tagline: string
+  apiId: number
   heroImage: string
   zones: ProjectZone[]
 }
@@ -60,4 +59,25 @@ export type PhaseSearchResponse = {
   totalElements: number
   totalPages: number
   data: Phase[]
+}
+
+export type PortalProject = {
+  id: number
+  code: string
+  name: string
+  shortDescription: string | null
+  fileInfo: PhaseFileInfo | null
+}
+
+export type ProjectSearchResponse = {
+  code: string
+  message: string
+  debug: unknown | null
+  requestId: string
+  serverTime: string
+  pageNumber: number
+  pageSize: number
+  totalElements: number
+  totalPages: number
+  data: PortalProject[]
 }

@@ -1,4 +1,4 @@
-export * from './api/phase-api'
+export * from './api'
 export * from './data/project'
-export * from './hooks/use-project-phases'
+export * from './hooks'
 export * from './types/project'

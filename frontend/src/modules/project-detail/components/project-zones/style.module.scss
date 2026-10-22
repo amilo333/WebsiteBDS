@@ -2,6 +2,10 @@ $primary-color: #1559c7;
 $border-color: #dce8f7;
 $pagination-gradient: linear-gradient(135deg, $primary-color 0%, #0aaed0 100%);
 
+.section {
+  scroll-margin-top: 80px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

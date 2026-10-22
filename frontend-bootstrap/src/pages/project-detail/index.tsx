@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { getPhases } from '../../api/phase-api'
+import { getPhases } from '../../api'
 import { PageBreadcrumbs, PageIntro } from '../../components/core'
 import { SiteLayout } from '../../components/layouts'
 import { SectionTabs, ZoneCard } from '../../components/composites'
 import { project } from '../../data/project'
+import { useProject, useScrollToHash } from '../../hooks'
 import styles from './style.module.scss'
 
 const PAGE_SIZE = 4
@@ -44,7 +45,14 @@ function getPaginationItems(currentPage: number, totalPages: number): Pagination
 }
 
 export function ProjectDetailPage() {
+  useScrollToHash('#phan-khu')
+
   const [page, setPage] = useState(1)
+  const {
+    data: projectDetails,
+    isPending: isProjectPending,
+    isError: isProjectError,
+  } = useProject(project.apiId)
   const {
     data: response,
     isPending,
@@ -64,15 +72,21 @@ export function ProjectDetailPage() {
   const phases = response?.data ?? []
   const totalPages = response?.totalPages ?? 0
   const paginationItems = getPaginationItems(page, totalPages)
+  const projectName = projectDetails?.name
+    ?? (isProjectPending ? 'Đang tải thông tin dự án...' : 'Dự án')
+  const projectDescription = projectDetails?.shortDescription
+    ?? (isProjectError
+      ? 'Không thể tải thông tin dự án.'
+      : `Theo dõi thông tin chi tiết, bảng giá, mặt bằng, tiến độ và chính sách bán hàng dự án ${projectName}.`)
 
   return (
     <SiteLayout>
       <div className="container">
-        <PageBreadcrumbs items={[{ label: 'Dự án' }, { label: 'Vinhomes Ocean Park 3' }]} />
-        <PageIntro title={project.name} subtitle={project.tagline} />
+        <PageBreadcrumbs items={[{ label: 'Dự án' }, { label: projectName }]} />
+        <PageIntro title={projectName} subtitle={projectDescription} />
 
         <section id="tong-quan" className={styles.hero} aria-label="Tổng quan dự án">
-          <img src={project.heroImage} alt="Toàn cảnh Vinhomes Ocean Park 2 và 3" />
+          <img src={project.heroImage} alt={`Toàn cảnh ${projectName}`} />
           <div className={styles.dots} aria-hidden="true">
             <span className={styles.dotActive} />
             <span />
