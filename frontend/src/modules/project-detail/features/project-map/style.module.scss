@@ -371,6 +371,44 @@
   }
 }
 
+.markerPagination {
+  position: absolute;
+  z-index: 25;
+  bottom: 14px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  max-width: calc(100% - 28px);
+  min-height: 42px;
+  padding: 5px 8px 5px 12px;
+  border: 1px solid #d8dde5;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #52627a;
+  font-size: 10px;
+  font-weight: 700;
+  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.18);
+  gap: 8px;
+  transform: translateX(-50%);
+
+  > span {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  :global(.MuiPagination-ul) {
+    flex-wrap: nowrap;
+  }
+
+  :global(.MuiPaginationItem-root) {
+    min-width: 28px;
+    height: 28px;
+    margin: 0 1px;
+    font-size: 10px;
+    font-weight: 750;
+  }
+}
+
 .unitInfoCard {
   position: absolute;
   z-index: 35;
@@ -690,5 +728,14 @@
     right: 10px;
     bottom: 10px;
     width: min(230px, calc(100% - 20px));
+  }
+
+  .markerPagination {
+    bottom: 8px;
+    padding-left: 8px;
+
+    > span {
+      display: none;
+    }
   }
 }

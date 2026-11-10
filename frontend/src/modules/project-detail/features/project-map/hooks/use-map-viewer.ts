@@ -26,6 +26,66 @@ type UseMapViewerOptions = {
   setSelectedUnit: Dispatch<SetStateAction<ProjectMapUnit | null>>
 }
 
+type MarkerPagination = {
+  page: number
+  totalPages: number
+  totalItems: number
+  displayedItems: number
+}
+
+type PixelRect = {
+  left: number
+  right: number
+  top: number
+  bottom: number
+}
+
+const MARKER_GAP = 8
+
+function getMarkerOffsets(width: number, height: number) {
+  const horizontalStep = width + MARKER_GAP
+  const verticalStep = height + MARKER_GAP
+
+  return [
+    [0, 0],
+    [0, -verticalStep],
+    [horizontalStep, -verticalStep],
+    [horizontalStep, 0],
+    [horizontalStep, verticalStep],
+    [0, verticalStep],
+    [-horizontalStep, verticalStep],
+    [-horizontalStep, 0],
+    [-horizontalStep, -verticalStep],
+  ] as const
+}
+
+function getMarkerRect(
+  position: OpenSeadragon.Point,
+  width: number,
+  height: number,
+): PixelRect {
+  return {
+    left: position.x - width / 2,
+    right: position.x + width / 2,
+    top: position.y - height,
+    bottom: position.y,
+  }
+}
+
+function rectanglesOverlap(first: PixelRect, second: PixelRect) {
+  return first.left < second.right + MARKER_GAP
+    && first.right + MARKER_GAP > second.left
+    && first.top < second.bottom + MARKER_GAP
+    && first.bottom + MARKER_GAP > second.top
+}
+
+function isRectInsideViewer(rect: PixelRect, width: number, height: number) {
+  return rect.left >= MARKER_GAP
+    && rect.top >= MARKER_GAP
+    && rect.right <= width - MARKER_GAP
+    && rect.bottom <= height - MARKER_GAP
+}
+
 export function useMapViewer({
   dziUrl,
   maxZoomLevel,
@@ -46,19 +106,31 @@ export function useMapViewer({
   const visibleUnitIdsRef = useRef(new Set<string>())
   const markersEnabledRef = useRef(true)
   const focusedUnitIdRef = useRef<string | null>(null)
-  const updateMarkerVisibilityRef = useRef<() => void>(() => undefined)
+  const markerPageRef = useRef(1)
+  const markerTotalPagesRef = useRef(0)
+  const updateMarkerVisibilityRef = useRef<(resetPage?: boolean) => void>(
+    () => undefined,
+  )
   const focusMapUnitRef = useRef<(unit: ProjectMapUnit) => void>(() => undefined)
   const [viewerError, setViewerError] = useState<string | null>(null)
+  const [markerPagination, setMarkerPagination] = useState<MarkerPagination>({
+    page: 1,
+    totalPages: 0,
+    totalItems: 0,
+    displayedItems: 0,
+  })
 
   useEffect(() => {
     markersEnabledRef.current = markersEnabled
     visibleUnitIdsRef.current = visibleUnitIds
-    updateMarkerVisibilityRef.current()
+    markerPageRef.current = 1
+    updateMarkerVisibilityRef.current(true)
   }, [markersEnabled, visibleUnitIds])
 
   useEffect(() => {
     const viewerElement = viewerElementRef.current
     if (!viewerElement || !dziUrl) return
+    const mapElement = viewerElement
 
     const markerElements = markerElementsRef.current
     const markerLocations = markerLocationsRef.current
@@ -83,7 +155,7 @@ export function useMapViewer({
       },
     })
 
-    function updateMarkerVisibility() {
+    function updateMarkerVisibility(resetPage = false) {
       const showDetails = getConfiguredZoomLevel(viewer, configuredZoomMax)
         >= MARKER_DETAIL_ZOOM_LEVEL
       const viewportBounds = viewer.viewport.getBounds(true)
@@ -105,25 +177,65 @@ export function useMapViewer({
           return getNumericPrice(firstUnit) - getNumericPrice(secondUnit)
         })
 
+      const pageSize = Math.max(1, Math.floor(markerLimit))
+      const totalPages = Math.ceil(candidates.length / pageSize)
+      if (resetPage) markerPageRef.current = 1
+      const currentPage = totalPages === 0
+        ? 1
+        : Math.min(markerPageRef.current, totalPages)
+      markerPageRef.current = currentPage
+      markerTotalPagesRef.current = totalPages
+      const pageCandidates = candidates.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize,
+      )
       const displayedUnitIds = new Set<string>()
-      const displayedPositions: OpenSeadragon.Point[] = []
+      const displayedRects: PixelRect[] = []
       const collisionWidth = showDetails ? 164 : 98
       const collisionHeight = showDetails ? 88 : 36
+      const markerOffsets = getMarkerOffsets(collisionWidth, collisionHeight)
+      const viewerWidth = mapElement.clientWidth
+      const viewerHeight = mapElement.clientHeight
 
-      for (const unit of candidates) {
-        if (displayedUnitIds.size >= markerLimit) break
-
+      for (const unit of pageCandidates) {
         const location = markerLocations.get(unit.id)
-        if (!location) continue
+        const marker = markerElements.get(unit.id)
+        if (!location || !marker) continue
         const pixelPosition = viewer.viewport.pixelFromPoint(location, true)
-        const overlaps = displayedPositions.some((position) => (
-          Math.abs(position.x - pixelPosition.x) < collisionWidth
-          && Math.abs(position.y - pixelPosition.y) < collisionHeight
-        ))
+        const availablePosition = markerOffsets
+          .map(([offsetX, offsetY]) => new OpenSeadragon.Point(
+            pixelPosition.x + offsetX,
+            pixelPosition.y + offsetY,
+          ))
+          .find((position) => {
+            const rect = getMarkerRect(
+              position,
+              collisionWidth,
+              collisionHeight,
+            )
+            return isRectInsideViewer(rect, viewerWidth, viewerHeight)
+              && displayedRects.every((displayedRect) => (
+                !rectanglesOverlap(rect, displayedRect)
+              ))
+          })
 
-        if (overlaps) continue
+        if (!availablePosition) continue
+        const displayRect = getMarkerRect(
+          availablePosition,
+          collisionWidth,
+          collisionHeight,
+        )
+        const displayLocation = viewer.viewport.pointFromPixel(
+          availablePosition,
+          true,
+        )
+        viewer.updateOverlay(
+          marker,
+          displayLocation,
+          OpenSeadragon.Placement.BOTTOM,
+        )
         displayedUnitIds.add(unit.id)
-        displayedPositions.push(pixelPosition)
+        displayedRects.push(displayRect)
       }
 
       for (const [unitId, marker] of markerElements) {
@@ -136,14 +248,34 @@ export function useMapViewer({
           !displayedUnitIds.has(unitId),
         )
       }
+
+      setMarkerPagination((current) => {
+        const next = {
+          page: currentPage,
+          totalPages,
+          totalItems: candidates.length,
+          displayedItems: displayedUnitIds.size,
+        }
+        return current.page === next.page
+          && current.totalPages === next.totalPages
+          && current.totalItems === next.totalItems
+          && current.displayedItems === next.displayedItems
+          ? current
+          : next
+      })
     }
 
-    function scheduleMarkerVisibilityUpdate() {
+    let shouldResetPage = false
+
+    function scheduleMarkerVisibilityUpdate(resetPage = false) {
+      shouldResetPage = shouldResetPage || resetPage
       if (animationFrame !== null) return
 
       animationFrame = window.requestAnimationFrame(() => {
         animationFrame = null
-        updateMarkerVisibility()
+        const resetPageOnUpdate = shouldResetPage
+        shouldResetPage = false
+        updateMarkerVisibility(resetPageOnUpdate)
       })
     }
 
@@ -187,8 +319,9 @@ export function useMapViewer({
       if (!location) return
 
       focusedUnitIdRef.current = unit.id
+      markerPageRef.current = 1
       setSelectedUnit(unit)
-      scheduleMarkerVisibilityUpdate()
+      scheduleMarkerVisibilityUpdate(true)
 
       const focusZoom = Math.min(
         focusZoomLevel,
@@ -207,12 +340,12 @@ export function useMapViewer({
       markerLocations.clear()
       markerUnits.clear()
       for (const unit of units) addMarker(unit)
-      scheduleMarkerVisibilityUpdate()
+      scheduleMarkerVisibilityUpdate(true)
     })
-    viewer.addHandler('animation', scheduleMarkerVisibilityUpdate)
-    viewer.addHandler('animation-finish', scheduleMarkerVisibilityUpdate)
-    viewer.addHandler('resize', scheduleMarkerVisibilityUpdate)
-    viewer.addHandler('zoom', scheduleMarkerVisibilityUpdate)
+    viewer.addHandler('animation', () => scheduleMarkerVisibilityUpdate(false))
+    viewer.addHandler('animation-finish', () => scheduleMarkerVisibilityUpdate(true))
+    viewer.addHandler('resize', () => scheduleMarkerVisibilityUpdate(true))
+    viewer.addHandler('zoom', () => scheduleMarkerVisibilityUpdate(true))
     viewer.addHandler('open-failed', () => {
       setViewerError('Không thể mở bản đồ DZI. Vui lòng kiểm tra lại file bản đồ.')
     })
@@ -244,7 +377,14 @@ export function useMapViewer({
 
   const clearFocusedUnit = useCallback(() => {
     focusedUnitIdRef.current = null
-    updateMarkerVisibilityRef.current()
+    markerPageRef.current = 1
+    updateMarkerVisibilityRef.current(true)
+  }, [])
+
+  const setMarkerPage = useCallback((page: number) => {
+    const totalPages = markerTotalPagesRef.current
+    markerPageRef.current = Math.max(1, Math.min(page, totalPages || 1))
+    updateMarkerVisibilityRef.current(false)
   }, [])
 
   return {
@@ -252,5 +392,7 @@ export function useMapViewer({
     viewerError,
     focusMapUnit,
     clearFocusedUnit,
+    markerPagination,
+    setMarkerPage,
   }
 }

@@ -1,6 +1,7 @@
 import { Alert, Box, CircularProgress, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
+import { Pagination } from '../../../../../../components/core'
 import { createUnitInquiry } from '../../api'
 import {
   useMapFilters,
@@ -81,6 +82,8 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
     viewerError,
     focusMapUnit,
     clearFocusedUnit,
+    markerPagination,
+    setMarkerPage,
   } = useMapViewer({
     dziUrl,
     maxZoomLevel: getMaxZoomLevel(mapConfig),
@@ -184,6 +187,21 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
           isVisible={showAllUnits}
           onToggle={() => setShowAllUnits((current) => !current)}
         />
+
+        {showAllUnits && markerPagination.totalPages > 1 && (
+          <div className={styles.markerPagination}>
+            <span>
+              Hiển thị {markerPagination.displayedItems}/{markerPagination.totalItems} căn
+            </span>
+            <Pagination
+              page={markerPagination.page}
+              count={markerPagination.totalPages}
+              onChange={(_, page) => setMarkerPage(page)}
+              shape="rounded"
+              siblingCount={0}
+            />
+          </div>
+        )}
 
         {selectedUnit && (
           <UnitInfoCard
