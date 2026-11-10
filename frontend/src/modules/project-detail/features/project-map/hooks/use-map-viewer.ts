@@ -1,50 +1,45 @@
-import OpenSeadragon from 'openseadragon'
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import type { Dispatch, SetStateAction } from 'react'
-import { MARKER_DETAIL_ZOOM_LEVEL } from '../constants'
-import { createMarkerElement } from '../components/map-marker'
-import type { ProjectMapUnit } from '../types'
-import { getConfiguredZoomLevel, getNumericPrice } from '../utils'
-import styles from '../style.module.scss'
+import OpenSeadragon from "openseadragon";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { MARKER_DETAIL_ZOOM_LEVEL } from "../constants";
+import { createMarkerElement } from "../components/map-marker";
+import type { ProjectMapUnit } from "../types";
+import { getConfiguredZoomLevel, getNumericPrice } from "../utils";
+import styles from "../style.module.scss";
 
 type UseMapViewerOptions = {
-  dziUrl: string | null
-  maxZoomLevel?: number
-  defaultZoomLevel: number
-  focusZoomLevel: number
-  configuredZoomMax: number
-  markerLimit: number
-  units: ProjectMapUnit[]
-  visibleUnitIds: Set<string>
-  markersEnabled: boolean
-  setMarkersEnabled: Dispatch<SetStateAction<boolean>>
-  setSelectedUnit: Dispatch<SetStateAction<ProjectMapUnit | null>>
-}
+  dziUrl: string | null;
+  maxZoomLevel?: number;
+  defaultZoomLevel: number;
+  focusZoomLevel: number;
+  configuredZoomMax: number;
+  markerLimit: number;
+  units: ProjectMapUnit[];
+  visibleUnitIds: Set<string>;
+  markersEnabled: boolean;
+  setMarkersEnabled: Dispatch<SetStateAction<boolean>>;
+  setSelectedUnit: Dispatch<SetStateAction<ProjectMapUnit | null>>;
+};
 
 type MarkerPagination = {
-  page: number
-  totalPages: number
-  totalItems: number
-  displayedItems: number
-}
+  page: number;
+  totalPages: number;
+  totalItems: number;
+  displayedItems: number;
+};
 
 type PixelRect = {
-  left: number
-  right: number
-  top: number
-  bottom: number
-}
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+};
 
-const MARKER_GAP = 8
+const MARKER_GAP = 8;
 
 function getMarkerOffsets(width: number, height: number) {
-  const horizontalStep = width + MARKER_GAP
-  const verticalStep = height + MARKER_GAP
+  const horizontalStep = width + MARKER_GAP;
+  const verticalStep = height + MARKER_GAP;
 
   return [
     [0, 0],
@@ -56,7 +51,7 @@ function getMarkerOffsets(width: number, height: number) {
     [-horizontalStep, verticalStep],
     [-horizontalStep, 0],
     [-horizontalStep, -verticalStep],
-  ] as const
+  ] as const;
 }
 
 function getMarkerRect(
@@ -69,21 +64,25 @@ function getMarkerRect(
     right: position.x + width / 2,
     top: position.y - height,
     bottom: position.y,
-  }
+  };
 }
 
 function rectanglesOverlap(first: PixelRect, second: PixelRect) {
-  return first.left < second.right + MARKER_GAP
-    && first.right + MARKER_GAP > second.left
-    && first.top < second.bottom + MARKER_GAP
-    && first.bottom + MARKER_GAP > second.top
+  return (
+    first.left < second.right + MARKER_GAP &&
+    first.right + MARKER_GAP > second.left &&
+    first.top < second.bottom + MARKER_GAP &&
+    first.bottom + MARKER_GAP > second.top
+  );
 }
 
 function isRectInsideViewer(rect: PixelRect, width: number, height: number) {
-  return rect.left >= MARKER_GAP
-    && rect.top >= MARKER_GAP
-    && rect.right <= width - MARKER_GAP
-    && rect.bottom <= height - MARKER_GAP
+  return (
+    rect.left >= MARKER_GAP &&
+    rect.top >= MARKER_GAP &&
+    rect.right <= width - MARKER_GAP &&
+    rect.bottom <= height - MARKER_GAP
+  );
 }
 
 export function useMapViewer({
@@ -99,45 +98,47 @@ export function useMapViewer({
   setMarkersEnabled,
   setSelectedUnit,
 }: UseMapViewerOptions) {
-  const viewerElementRef = useRef<HTMLDivElement>(null)
-  const markerElementsRef = useRef(new Map<string, HTMLButtonElement>())
-  const markerLocationsRef = useRef(new Map<string, OpenSeadragon.Point>())
-  const markerUnitsRef = useRef(new Map<string, ProjectMapUnit>())
-  const visibleUnitIdsRef = useRef(new Set<string>())
-  const markersEnabledRef = useRef(true)
-  const focusedUnitIdRef = useRef<string | null>(null)
-  const markerPageRef = useRef(1)
-  const markerTotalPagesRef = useRef(0)
+  const viewerElementRef = useRef<HTMLDivElement>(null);
+  const markerElementsRef = useRef(new Map<string, HTMLButtonElement>());
+  const markerLocationsRef = useRef(new Map<string, OpenSeadragon.Point>());
+  const markerUnitsRef = useRef(new Map<string, ProjectMapUnit>());
+  const visibleUnitIdsRef = useRef(new Set<string>());
+  const markersEnabledRef = useRef(true);
+  const focusedUnitIdRef = useRef<string | null>(null);
+  const markerPageRef = useRef(1);
+  const markerTotalPagesRef = useRef(0);
   const updateMarkerVisibilityRef = useRef<(resetPage?: boolean) => void>(
     () => undefined,
-  )
-  const focusMapUnitRef = useRef<(unit: ProjectMapUnit) => void>(() => undefined)
-  const [viewerError, setViewerError] = useState<string | null>(null)
+  );
+  const focusMapUnitRef = useRef<(unit: ProjectMapUnit) => void>(
+    () => undefined,
+  );
+  const [viewerError, setViewerError] = useState<string | null>(null);
   const [markerPagination, setMarkerPagination] = useState<MarkerPagination>({
     page: 1,
     totalPages: 0,
     totalItems: 0,
     displayedItems: 0,
-  })
+  });
 
   useEffect(() => {
-    markersEnabledRef.current = markersEnabled
-    visibleUnitIdsRef.current = visibleUnitIds
-    markerPageRef.current = 1
-    updateMarkerVisibilityRef.current(true)
-  }, [markersEnabled, visibleUnitIds])
+    markersEnabledRef.current = markersEnabled;
+    visibleUnitIdsRef.current = visibleUnitIds;
+    markerPageRef.current = 1;
+    updateMarkerVisibilityRef.current(true);
+  }, [markersEnabled, visibleUnitIds]);
 
   useEffect(() => {
-    const viewerElement = viewerElementRef.current
-    if (!viewerElement || !dziUrl) return
-    const mapElement = viewerElement
+    const viewerElement = viewerElementRef.current;
+    if (!viewerElement || !dziUrl) return;
+    const mapElement = viewerElement;
 
-    const markerElements = markerElementsRef.current
-    const markerLocations = markerLocationsRef.current
-    const markerUnits = markerUnitsRef.current
-    let tiledImage: OpenSeadragon.TiledImage | null = null
-    let animationFrame: number | null = null
-    setViewerError(null)
+    const markerElements = markerElementsRef.current;
+    const markerLocations = markerLocationsRef.current;
+    const markerUnits = markerUnitsRef.current;
+    let tiledImage: OpenSeadragon.TiledImage | null = null;
+    let animationFrame: number | null = null;
+    setViewerError(null);
     const viewer = OpenSeadragon({
       element: viewerElement,
       tileSources: dziUrl,
@@ -153,100 +154,108 @@ export function useMapViewer({
       gestureSettingsMouse: {
         clickToZoom: false,
       },
-    })
+    });
 
     function updateMarkerVisibility(resetPage = false) {
-      const showDetails = getConfiguredZoomLevel(viewer, configuredZoomMax)
-        >= MARKER_DETAIL_ZOOM_LEVEL
-      const viewportBounds = viewer.viewport.getBounds(true)
+      const showDetails =
+        getConfiguredZoomLevel(viewer, configuredZoomMax) >=
+        MARKER_DETAIL_ZOOM_LEVEL;
+      const viewportBounds = viewer.viewport.getBounds(true);
       const candidates = Array.from(markerUnits.values())
         .filter((unit) => {
-          const location = markerLocations.get(unit.id)
-          const isFocused = focusedUnitIdRef.current === unit.id
-          return markersEnabledRef.current
-            && (isFocused || visibleUnitIdsRef.current.has(unit.id))
-            && Boolean(location && viewportBounds.containsPoint(location))
+          const location = markerLocations.get(unit.id);
+          const isFocused = focusedUnitIdRef.current === unit.id;
+          return (
+            markersEnabledRef.current &&
+            (isFocused || visibleUnitIdsRef.current.has(unit.id)) &&
+            Boolean(location && viewportBounds.containsPoint(location))
+          );
         })
         .sort((firstUnit, secondUnit) => {
-          const firstIsFocused = focusedUnitIdRef.current === firstUnit.id
-          const secondIsFocused = focusedUnitIdRef.current === secondUnit.id
-          if (firstIsFocused !== secondIsFocused) return firstIsFocused ? -1 : 1
+          const firstIsFocused = focusedUnitIdRef.current === firstUnit.id;
+          const secondIsFocused = focusedUnitIdRef.current === secondUnit.id;
+          if (firstIsFocused !== secondIsFocused)
+            return firstIsFocused ? -1 : 1;
           if (firstUnit.isHot !== secondUnit.isHot) {
-            return firstUnit.isHot ? -1 : 1
+            return firstUnit.isHot ? -1 : 1;
           }
-          return getNumericPrice(firstUnit) - getNumericPrice(secondUnit)
-        })
+          return getNumericPrice(firstUnit) - getNumericPrice(secondUnit);
+        });
 
-      const pageSize = Math.max(1, Math.floor(markerLimit))
-      const totalPages = Math.ceil(candidates.length / pageSize)
-      if (resetPage) markerPageRef.current = 1
-      const currentPage = totalPages === 0
-        ? 1
-        : Math.min(markerPageRef.current, totalPages)
-      markerPageRef.current = currentPage
-      markerTotalPagesRef.current = totalPages
+      const pageSize = Math.max(1, Math.floor(markerLimit));
+      const totalPages = Math.ceil(candidates.length / pageSize);
+      if (resetPage) markerPageRef.current = 1;
+      const currentPage =
+        totalPages === 0 ? 1 : Math.min(markerPageRef.current, totalPages);
+      markerPageRef.current = currentPage;
+      markerTotalPagesRef.current = totalPages;
       const pageCandidates = candidates.slice(
         (currentPage - 1) * pageSize,
         currentPage * pageSize,
-      )
-      const displayedUnitIds = new Set<string>()
-      const displayedRects: PixelRect[] = []
-      const collisionWidth = showDetails ? 164 : 98
-      const collisionHeight = showDetails ? 88 : 36
-      const markerOffsets = getMarkerOffsets(collisionWidth, collisionHeight)
-      const viewerWidth = mapElement.clientWidth
-      const viewerHeight = mapElement.clientHeight
+      );
+      const displayedUnitIds = new Set<string>();
+      const displayedRects: PixelRect[] = [];
+      const collisionWidth = showDetails ? 164 : 98;
+      const collisionHeight = showDetails ? 88 : 36;
+      const markerOffsets = getMarkerOffsets(collisionWidth, collisionHeight);
+      const viewerWidth = mapElement.clientWidth;
+      const viewerHeight = mapElement.clientHeight;
 
       for (const unit of pageCandidates) {
-        const location = markerLocations.get(unit.id)
-        const marker = markerElements.get(unit.id)
-        if (!location || !marker) continue
-        const pixelPosition = viewer.viewport.pixelFromPoint(location, true)
+        const location = markerLocations.get(unit.id);
+        const marker = markerElements.get(unit.id);
+        if (!location || !marker) continue;
+        const pixelPosition = viewer.viewport.pixelFromPoint(location, true);
         const availablePosition = markerOffsets
-          .map(([offsetX, offsetY]) => new OpenSeadragon.Point(
-            pixelPosition.x + offsetX,
-            pixelPosition.y + offsetY,
-          ))
+          .map(
+            ([offsetX, offsetY]) =>
+              new OpenSeadragon.Point(
+                pixelPosition.x + offsetX,
+                pixelPosition.y + offsetY,
+              ),
+          )
           .find((position) => {
             const rect = getMarkerRect(
               position,
               collisionWidth,
               collisionHeight,
-            )
-            return isRectInsideViewer(rect, viewerWidth, viewerHeight)
-              && displayedRects.every((displayedRect) => (
-                !rectanglesOverlap(rect, displayedRect)
-              ))
-          })
+            );
+            return (
+              isRectInsideViewer(rect, viewerWidth, viewerHeight) &&
+              displayedRects.every(
+                (displayedRect) => !rectanglesOverlap(rect, displayedRect),
+              )
+            );
+          });
 
-        if (!availablePosition) continue
+        if (!availablePosition) continue;
         const displayRect = getMarkerRect(
           availablePosition,
           collisionWidth,
           collisionHeight,
-        )
+        );
         const displayLocation = viewer.viewport.pointFromPixel(
           availablePosition,
           true,
-        )
+        );
         viewer.updateOverlay(
           marker,
           displayLocation,
           OpenSeadragon.Placement.BOTTOM,
-        )
-        displayedUnitIds.add(unit.id)
-        displayedRects.push(displayRect)
+        );
+        displayedUnitIds.add(unit.id);
+        displayedRects.push(displayRect);
       }
 
       for (const [unitId, marker] of markerElements) {
         marker.classList.toggle(
           styles.markerExpanded,
           showDetails || focusedUnitIdRef.current === unitId,
-        )
+        );
         marker.classList.toggle(
           styles.markerHidden,
           !displayedUnitIds.has(unitId),
-        )
+        );
       }
 
       setMarkerPagination((current) => {
@@ -255,110 +264,109 @@ export function useMapViewer({
           totalPages,
           totalItems: candidates.length,
           displayedItems: displayedUnitIds.size,
-        }
-        return current.page === next.page
-          && current.totalPages === next.totalPages
-          && current.totalItems === next.totalItems
-          && current.displayedItems === next.displayedItems
+        };
+        return current.page === next.page &&
+          current.totalPages === next.totalPages &&
+          current.totalItems === next.totalItems &&
+          current.displayedItems === next.displayedItems
           ? current
-          : next
-      })
+          : next;
+      });
     }
 
-    let shouldResetPage = false
+    let shouldResetPage = false;
 
     function scheduleMarkerVisibilityUpdate(resetPage = false) {
-      shouldResetPage = shouldResetPage || resetPage
-      if (animationFrame !== null) return
+      shouldResetPage = shouldResetPage || resetPage;
+      if (animationFrame !== null) return;
 
       animationFrame = window.requestAnimationFrame(() => {
-        animationFrame = null
-        const resetPageOnUpdate = shouldResetPage
-        shouldResetPage = false
-        updateMarkerVisibility(resetPageOnUpdate)
-      })
+        animationFrame = null;
+        const resetPageOnUpdate = shouldResetPage;
+        shouldResetPage = false;
+        updateMarkerVisibility(resetPageOnUpdate);
+      });
     }
 
-    updateMarkerVisibilityRef.current = scheduleMarkerVisibilityUpdate
+    updateMarkerVisibilityRef.current = scheduleMarkerVisibilityUpdate;
 
     function addMarker(unit: ProjectMapUnit) {
-      if (!tiledImage) return null
+      if (!tiledImage) return null;
 
-      const existingLocation = markerLocations.get(unit.id)
+      const existingLocation = markerLocations.get(unit.id);
       if (existingLocation) {
-        markerUnits.set(unit.id, unit)
-        return existingLocation
+        markerUnits.set(unit.id, unit);
+        return existingLocation;
       }
 
-      const usesViewportCoordinates = unit.x >= 0
-        && unit.x <= 1
-        && unit.y >= 0
-        && unit.y <= 1
+      const usesViewportCoordinates =
+        unit.x >= 0 && unit.x <= 1 && unit.y >= 0 && unit.y <= 1;
       const location = usesViewportCoordinates
         ? new OpenSeadragon.Point(unit.x, unit.y)
-        : tiledImage.imageToViewportCoordinates(unit.x, unit.y)
+        : tiledImage.imageToViewportCoordinates(unit.x, unit.y);
       const marker = createMarkerElement(unit, (selected) => {
-        focusMapUnitRef.current(selected)
-      })
+        focusMapUnitRef.current(selected);
+      });
 
-      markerElements.set(unit.id, marker)
-      markerLocations.set(unit.id, location)
-      markerUnits.set(unit.id, unit)
+      markerElements.set(unit.id, marker);
+      markerLocations.set(unit.id, location);
+      markerUnits.set(unit.id, unit);
       viewer.addOverlay({
         element: marker,
         location,
         placement: OpenSeadragon.Placement.BOTTOM,
-      })
-      return location
+      });
+      return location;
     }
 
     focusMapUnitRef.current = (unit) => {
-      if (!markersEnabledRef.current) setMarkersEnabled(true)
+      if (!markersEnabledRef.current) setMarkersEnabled(true);
 
-      const location = addMarker(unit)
-      if (!location) return
+      const location = addMarker(unit);
+      if (!location) return;
 
-      focusedUnitIdRef.current = unit.id
-      markerPageRef.current = 1
-      setSelectedUnit(unit)
-      scheduleMarkerVisibilityUpdate(true)
+      focusedUnitIdRef.current = unit.id;
+      markerPageRef.current = 1;
+      setSelectedUnit(unit);
+      scheduleMarkerVisibilityUpdate(true);
 
-      const focusZoom = Math.min(
-        focusZoomLevel,
-        viewer.viewport.getMaxZoom(),
-      )
-      viewer.viewport.panTo(location)
-      viewer.viewport.zoomTo(focusZoom, location)
-      viewer.viewport.applyConstraints()
-    }
+      const focusZoom = Math.min(focusZoomLevel, viewer.viewport.getMaxZoom());
+      viewer.viewport.panTo(location);
+      viewer.viewport.zoomTo(focusZoom, location);
+      viewer.viewport.applyConstraints();
+    };
 
-    viewer.addHandler('open', () => {
-      tiledImage = viewer.world.getItemAt(0)
-      if (!tiledImage) return
+    viewer.addHandler("open", () => {
+      tiledImage = viewer.world.getItemAt(0);
+      if (!tiledImage) return;
 
-      markerElements.clear()
-      markerLocations.clear()
-      markerUnits.clear()
-      for (const unit of units) addMarker(unit)
-      scheduleMarkerVisibilityUpdate(true)
-    })
-    viewer.addHandler('animation', () => scheduleMarkerVisibilityUpdate(false))
-    viewer.addHandler('animation-finish', () => scheduleMarkerVisibilityUpdate(true))
-    viewer.addHandler('resize', () => scheduleMarkerVisibilityUpdate(true))
-    viewer.addHandler('zoom', () => scheduleMarkerVisibilityUpdate(true))
-    viewer.addHandler('open-failed', () => {
-      setViewerError('Không thể mở bản đồ DZI. Vui lòng kiểm tra lại file bản đồ.')
-    })
+      markerElements.clear();
+      markerLocations.clear();
+      markerUnits.clear();
+      for (const unit of units) addMarker(unit);
+      scheduleMarkerVisibilityUpdate(true);
+    });
+    viewer.addHandler("animation", () => scheduleMarkerVisibilityUpdate(false));
+    viewer.addHandler("animation-finish", () =>
+      scheduleMarkerVisibilityUpdate(true),
+    );
+    viewer.addHandler("resize", () => scheduleMarkerVisibilityUpdate(true));
+    viewer.addHandler("zoom", () => scheduleMarkerVisibilityUpdate(true));
+    viewer.addHandler("open-failed", () => {
+      setViewerError(
+        "Không thể mở bản đồ DZI. Vui lòng kiểm tra lại file bản đồ.",
+      );
+    });
 
     return () => {
-      if (animationFrame !== null) window.cancelAnimationFrame(animationFrame)
-      updateMarkerVisibilityRef.current = () => undefined
-      focusMapUnitRef.current = () => undefined
-      markerElements.clear()
-      markerLocations.clear()
-      markerUnits.clear()
-      viewer.destroy()
-    }
+      if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
+      updateMarkerVisibilityRef.current = () => undefined;
+      focusMapUnitRef.current = () => undefined;
+      markerElements.clear();
+      markerLocations.clear();
+      markerUnits.clear();
+      viewer.destroy();
+    };
   }, [
     configuredZoomMax,
     defaultZoomLevel,
@@ -369,30 +377,30 @@ export function useMapViewer({
     setMarkersEnabled,
     setSelectedUnit,
     units,
-  ])
+  ]);
 
   const focusMapUnit = useCallback((unit: ProjectMapUnit) => {
-    focusMapUnitRef.current(unit)
-  }, [])
+    focusMapUnitRef.current(unit);
+  }, []);
 
   const clearFocusedUnit = useCallback(() => {
-    focusedUnitIdRef.current = null
-    markerPageRef.current = 1
-    updateMarkerVisibilityRef.current(true)
-  }, [])
+    focusedUnitIdRef.current = null;
+    markerPageRef.current = 1;
+    updateMarkerVisibilityRef.current(true);
+  }, []);
 
   const setMarkerPage = useCallback((page: number) => {
-    const totalPages = markerTotalPagesRef.current
-    markerPageRef.current = Math.max(1, Math.min(page, totalPages || 1))
-    updateMarkerVisibilityRef.current(false)
-  }, [])
+    const totalPages = markerTotalPagesRef.current;
+    markerPageRef.current = Math.max(1, Math.min(page, totalPages || 1));
+    updateMarkerVisibilityRef.current(false);
+  }, []);
 
   return {
-    viewerElementRef,
-    viewerError,
-    focusMapUnit,
-    clearFocusedUnit,
-    markerPagination,
-    setMarkerPage,
-  }
+    viewerElementRef, //gắn OpenSeadragon vào thẻ <div> bản đồ.
+    viewerError, //chứa lỗi khi không mở được file DZI, dùng để hiện thông báo.
+    focusMapUnit, //khi chọn kết quả tìm kiếm hoặc marker, bản đồ kéo đến tọa độ căn và zoom lên.
+    clearFocusedUnit, //bỏ trạng thái căn đang được focus khi đóng bảng chi tiết.
+    markerPagination, //thông tin phân trang marker:
+    setMarkerPage, //chuyển trang marker. Sau khi chuyển trang, hook ẩn marker trang cũ và sắp xếp lại marker trang mới theo 8 hướng.
+  };
 }
