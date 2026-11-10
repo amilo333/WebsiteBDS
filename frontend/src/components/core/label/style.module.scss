@@ -1,0 +1,14 @@
+.label:global(.MuiFormLabel-root) {
+  color: #333333;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+
+  &:global(.Mui-focused) {
+    color: #333333;
+  }
+
+  :global(.MuiFormLabel-asterisk) {
+    color: #f04444;
+  }
+}

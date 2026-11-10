@@ -9,6 +9,20 @@ export type ProjectTabKey =
   | 'policy'
   | 'news'
 
+export type BreadcrumbItem = {
+  label: string
+  href?: string
+}
+
+export type PageBreadcrumbsProps = {
+  items: BreadcrumbItem[]
+}
+
+export type PageIntroProps = {
+  title: string
+  subtitle: string
+}
+
 export type ProjectData = {
   id: string
   apiId: number
@@ -32,28 +46,6 @@ export type PhaseFileInfo = {
   fullLink: string
 }
 
-export type Phase = {
-  id: number
-  projectId: number
-  name: string
-  shortDescription: string | null
-  fileInfo: PhaseFileInfo | null
-  sortOrder: number
-}
-
-export type PhaseSearchResponse = {
-  code: string
-  message: string
-  debug: unknown | null
-  requestId: string
-  serverTime: string
-  pageNumber: number
-  pageSize: number
-  totalElements: number
-  totalPages: number
-  data: Phase[]
-}
-
 export type PortalProject = {
   id: number
   code: string
@@ -75,19 +67,9 @@ export type ProjectSearchResponse = {
   data: PortalProject[]
 }
 
-export type GetPhasesParams = {
-  pageNumber: number
-  pageSize: number
-  projectId?: number
-}
-
 export type ProjectHeroProps = {
   image: string
   alt: string
-}
-
-export type ProjectZonesProps = {
-  projectId: number
 }
 
 export type SectionTabsProps = {
@@ -99,8 +81,4 @@ export type TabItem = {
   label: string
   icon: ElementType
   href: string
-}
-
-export type ZoneCardProps = {
-  phase: Phase
 }

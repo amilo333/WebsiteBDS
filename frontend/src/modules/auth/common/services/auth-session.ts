@@ -27,12 +27,12 @@ export function getAuthSession() {
 
   try {
     const session = JSON.parse(storedSession) as AuthSession
-    const accessExpiredAt = Date.parse(session.accessExpiredAt)
+    const refreshExpiredAt = Date.parse(session.refreshExpiredAt)
 
     if (
-      !session.accessToken ||
-      !Number.isFinite(accessExpiredAt) ||
-      accessExpiredAt <= Date.now()
+      !session.refreshToken ||
+      !Number.isFinite(refreshExpiredAt) ||
+      refreshExpiredAt <= Date.now()
     ) {
       clearAuthSession()
       return null
@@ -49,6 +49,17 @@ export function getAccessToken() {
   return getAuthSession()?.accessToken ?? null
 }
 
+export function getRefreshToken() {
+  return getAuthSession()?.refreshToken ?? null
+}
+
+export function isAccessTokenExpired(session: AuthSession) {
+  const accessExpiredAt = Date.parse(session.accessExpiredAt)
+  return !session.accessToken
+    || !Number.isFinite(accessExpiredAt)
+    || accessExpiredAt <= Date.now()
+}
+
 export function hasAuthSession() {
-  return Boolean(getAccessToken())
+  return Boolean(getAuthSession())
 }

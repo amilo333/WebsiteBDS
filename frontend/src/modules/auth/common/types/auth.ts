@@ -28,6 +28,12 @@ export type ApiResponse<TData> = {
 
 export type LoginResponse = ApiResponse<AuthSession>
 
+export type RefreshTokenRequest = {
+  refreshToken: string
+}
+
+export type RefreshTokenResponse = ApiResponse<AuthSession>
+
 export type UserFileInfo = {
   fullLink?: string | null
 }
@@ -56,4 +62,9 @@ export type AuthApiError = {
 
 export type ProtectedRouteProps = {
   children: ReactNode
+}
+
+export type UseLoginFormOptions = {
+  onSuccess?: () => void
+  redirectTo?: string | null
 }

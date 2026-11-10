@@ -1,15 +1,19 @@
 import { Container } from '@mui/material'
-import { PageBreadcrumbs, PageIntro } from '../../components/core'
 import { SiteLayout } from '../../components/layouts'
 import {
+  PageBreadcrumbs,
+  PageIntro,
   ProjectHero,
+  ProjectMapAccess,
   ProjectZones,
   SectionTabs,
   project,
+  useActiveProjectTab,
   useProject,
 } from '../../modules/project-detail'
 
 export function ProjectDetailPage() {
+  const activeTab = useActiveProjectTab()
   const { data: projectDetails, isPending, isError } = useProject(project.apiId)
   const projectName = projectDetails?.name
     ?? (isPending ? 'Đang tải thông tin dự án...' : 'Dự án')
@@ -29,8 +33,12 @@ export function ProjectDetailPage() {
           image={project.heroImage}
           alt={`Toàn cảnh ${projectName}`}
         />
-        <SectionTabs active="zones" />
-        <ProjectZones projectId={project.apiId} />
+        <SectionTabs active={activeTab} />
+        {activeTab === 'floorplan' ? (
+          <ProjectMapAccess projectId={project.apiId} />
+        ) : (
+          <ProjectZones projectId={project.apiId} />
+        )}
       </Container>
     </SiteLayout>
   )

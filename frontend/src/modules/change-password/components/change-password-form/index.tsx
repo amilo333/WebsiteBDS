@@ -1,5 +1,5 @@
 import { Alert, Box, Snackbar, Typography } from '@mui/material'
-import { AppButton } from '../../../../components/core'
+import { Button } from '../../../../components/core'
 import { useChangePasswordForm } from '../../common'
 import { FormPasswordField } from '../form-password-field'
 import styles from './style.module.scss'
@@ -45,14 +45,14 @@ export function ChangePasswordForm() {
             autoComplete="new-password"
           />
 
-          <AppButton
+          <Button
             gradient
             type="submit"
             disabled={isSubmitting}
             className={styles.submitButton}
           >
             {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
-          </AppButton>
+          </Button>
         </Box>
       </Box>
 

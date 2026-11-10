@@ -3,18 +3,6 @@
   flex-direction: column;
 }
 
-.label {
-  margin-bottom: 6px;
-  color: #333333;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.required {
-  color: #f04444;
-}
-
 .textField {
   :global(.MuiOutlinedInput-root) {
     height: 36px;

@@ -1,0 +1,118 @@
+.card {
+  width: min(100%, 344px);
+  padding: 28px 22px 24px;
+  border: 1px solid rgba(224, 228, 235, 0.92);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 18px 42px rgba(42, 56, 82, 0.2);
+}
+
+.title:global(.MuiTypography-root) {
+  color: #1c56bd;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.description:global(.MuiTypography-root) {
+  margin-top: 7px;
+  color: #4f5662;
+  font-size: 11px;
+  text-align: center;
+}
+
+.form {
+  margin-top: 20px;
+}
+
+.input:global(.MuiTextField-root) {
+  :global(.MuiOutlinedInput-root) {
+    height: 38px;
+    border-radius: 5px;
+    background: #ffffff;
+    font-size: 11px;
+  }
+
+  :global(.MuiOutlinedInput-input) {
+    padding: 9px 11px;
+  }
+
+  :global(.MuiFormHelperText-root) {
+    min-height: 15px;
+    margin: 2px 0 0;
+    font-size: 9px;
+    line-height: 13px;
+  }
+
+  :global(.MuiSvgIcon-root) {
+    font-size: 16px;
+  }
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -1px 0 12px;
+}
+
+.remember:global(.MuiFormControlLabel-root) {
+  margin: 0;
+
+  :global(.MuiCheckbox-root) {
+    padding: 0 5px 0 0;
+  }
+
+  :global(.MuiSvgIcon-root) {
+    font-size: 16px;
+  }
+
+  :global(.MuiFormControlLabel-label) {
+    color: #555d69;
+    font-size: 10px;
+  }
+}
+
+.textButton {
+  padding: 0;
+  border: 0;
+  color: #205ac4;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.options .textButton {
+  font-size: 10px;
+}
+
+.alert:global(.MuiAlert-root) {
+  margin-bottom: 10px;
+  padding: 2px 8px;
+  font-size: 10px;
+}
+
+.submitButton:global(.MuiButton-root) {
+  height: 36px;
+  font-size: 11px;
+}
+
+.registerText:global(.MuiTypography-root) {
+  margin-top: 27px;
+  color: #4f5662;
+  font-size: 10px;
+  text-align: center;
+}
+
+.registerText .textButton {
+  font-size: inherit;
+}
+
+@media (max-width: 599.95px) {
+  .card {
+    padding: 24px 18px 21px;
+  }
+}

@@ -15,7 +15,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined'
 import { useNavigate } from 'react-router'
 import avatarImage from '../../../../assets/projects/avt.png'
-import { AppButton } from '../../../../components/core'
+import { Button } from '../../../../components/core'
 import { clearAuthSession, useCurrentUser } from '../../../auth'
 import styles from './style.module.scss'
 
@@ -90,18 +90,18 @@ export function AccountPanel() {
       <Divider className={styles.divider} />
 
       <Stack className={styles.actions}>
-        <AppButton gradient fullWidth className={styles.actionButton} startIcon={<ForwardToInboxOutlinedIcon />}>
+        <Button gradient fullWidth className={styles.actionButton} startIcon={<ForwardToInboxOutlinedIcon />}>
           Giới thiệu bạn bè
-        </AppButton>
-        <AppButton
+        </Button>
+        <Button
           fullWidth
           className={`${styles.actionButton} ${styles.activeButton}`}
           startIcon={<LockOutlinedIcon />}
         >
           Đổi mật khẩu
-        </AppButton>
+        </Button>
         <Divider className={styles.logoutDivider} />
-        <AppButton
+        <Button
           fullWidth
           variant="outlined"
           onClick={handleLogout}
@@ -109,7 +109,7 @@ export function AccountPanel() {
           startIcon={<LogoutOutlinedIcon />}
         >
           Đăng xuất
-        </AppButton>
+        </Button>
       </Stack>
     </Box>
   )

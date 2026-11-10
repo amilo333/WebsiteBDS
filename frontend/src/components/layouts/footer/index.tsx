@@ -37,7 +37,7 @@ export function Footer({ className }: FooterProps) {
     <Box
       component="footer"
       className={className}
-      sx={{ mt: { xs: 6, md: 8 }, color: '#fff', background: 'linear-gradient(112deg, #2154c8 0%, #09bcd0 100%)' }}
+      sx={{ mt: 2, color: '#fff', background: 'linear-gradient(112deg, #2154c8 0%, #09bcd0 100%)' }}
     >
       <Container sx={{ py: { xs: 4, md: 5 } }}>
         <Box

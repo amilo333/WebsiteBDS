@@ -1,10 +1,10 @@
-import type { TextFieldProps } from '@mui/material'
 import type { z } from 'zod'
 import type {
   Control,
   FieldPath,
   FieldValues,
 } from 'react-hook-form'
+import type { TTextFieldProps } from '../../../../components/core'
 import type { changePasswordSchema } from '../schemas/change-password-schema'
 
 export type ChangePasswordRequest = {
@@ -19,8 +19,8 @@ export type ChangePasswordError = {
 }
 
 export type FormPasswordFieldProps<TFieldValues extends FieldValues> = Omit<
-  TextFieldProps,
-  'defaultValue' | 'label' | 'name' | 'type'
+  TTextFieldProps<TFieldValues>,
+  'defaultValue' | 'field' | 'fieldState' | 'label' | 'name' | 'type'
 > & {
   control: Control<TFieldValues>
   label: string

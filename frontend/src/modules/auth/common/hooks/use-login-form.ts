@@ -4,7 +4,11 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import { LOGIN_DEFAULT_VALUES } from '../constants/login'
 import { loginSchema } from '../schemas/login-schema'
-import type { AuthApiError, LoginRequest } from '../types/auth'
+import type {
+  AuthApiError,
+  LoginRequest,
+  UseLoginFormOptions,
+} from '../types/auth'
 import { useLoginApi } from './use-login-api'
 
 function getErrorMessage(error: unknown) {
@@ -15,7 +19,10 @@ function getErrorMessage(error: unknown) {
   return 'Đăng nhập không thành công'
 }
 
-export function useLoginForm() {
+export function useLoginForm({
+  onSuccess,
+  redirectTo = '/doi-mat-khau',
+}: UseLoginFormOptions = {}) {
   const navigate = useNavigate()
   const form = useForm<LoginRequest>({
     resolver: zodResolver(loginSchema),
@@ -26,7 +33,13 @@ export function useLoginForm() {
 
   const submit = form.handleSubmit((values) => {
     loginMutation.mutate(values, {
-      onSuccess: () => navigate('/doi-mat-khau', { replace: true }),
+      onSuccess: () => {
+        onSuccess?.()
+
+        if (redirectTo) {
+          navigate(redirectTo, { replace: true })
+        }
+      },
     })
   })
 

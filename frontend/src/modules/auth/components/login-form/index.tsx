@@ -1,6 +1,5 @@
-import { Alert, Box, Snackbar, TextField, Typography } from '@mui/material'
-import { Controller } from 'react-hook-form'
-import { AppButton } from '../../../../components/core'
+import { Alert, Box, Snackbar, Typography } from '@mui/material'
+import { Button, Field, TextField } from '../../../../components/core'
 import { useLoginForm } from '../../common'
 import styles from './style.module.scss'
 
@@ -23,41 +22,35 @@ export function LoginForm() {
       </Typography>
 
       <Box component="form" noValidate onSubmit={submit} className={styles.form}>
-        <Controller
+        <Field
           control={control}
           name="username"
-          render={({ field, fieldState }) => (
-            <TextField
-              {...field}
-              label="Tài khoản"
-              placeholder="Nhập email hoặc tên đăng nhập"
-              autoComplete="username"
-              fullWidth
-              error={Boolean(fieldState.error)}
-              helperText={fieldState.error?.message ?? ' '}
-              className={styles.field}
-            />
-          )}
-        />
-        <Controller
+          label="Tài khoản"
+          required
+        >
+          <TextField
+            placeholder="Nhập email hoặc tên đăng nhập"
+            autoComplete="username"
+            fullWidth
+            inputClassName={styles.field}
+          />
+        </Field>
+        <Field
           control={control}
           name="password"
-          render={({ field, fieldState }) => (
-            <TextField
-              {...field}
-              label="Mật khẩu"
-              placeholder="Nhập mật khẩu"
-              type="password"
-              autoComplete="current-password"
-              fullWidth
-              error={Boolean(fieldState.error)}
-              helperText={fieldState.error?.message ?? ' '}
-              className={styles.field}
-            />
-          )}
-        />
+          label="Mật khẩu"
+          required
+        >
+          <TextField
+            placeholder="Nhập mật khẩu"
+            type="password"
+            autoComplete="current-password"
+            fullWidth
+            inputClassName={styles.field}
+          />
+        </Field>
 
-        <AppButton
+        <Button
           gradient
           fullWidth
           type="submit"
@@ -65,7 +58,7 @@ export function LoginForm() {
           className={styles.submitButton}
         >
           {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
-        </AppButton>
+        </Button>
       </Box>
 
       <Snackbar

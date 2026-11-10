@@ -1,11 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { getPhases } from '../../api'
-import { PageBreadcrumbs, PageIntro } from '../../components/core'
 import { SiteLayout } from '../../components/layouts'
-import { SectionTabs, ZoneCard } from '../../components/composites'
 import { project } from '../../data/project'
 import { useProject, useScrollToHash } from '../../hooks'
+import {
+  PageBreadcrumbs,
+  PageIntro,
+  SectionTabs,
+  ZoneCard,
+} from '../../modules/project-detail'
 import styles from './style.module.scss'
 
 const PAGE_SIZE = 4

@@ -1,24 +1,26 @@
 import { useEffect } from 'react'
 
-const PROJECT_ZONES_HASH = '#phan-khu'
+const PROJECT_SECTION_HASHES = new Set(['#phan-khu', '#mat-bang'])
 
 export function useScrollToProjectSection() {
   useEffect(() => {
-    const scrollToProjectZones = () => {
-      if (window.location.hash !== PROJECT_ZONES_HASH) return
+    const scrollToProjectSection = () => {
+      const currentHash = window.location.hash
 
-      document.getElementById(PROJECT_ZONES_HASH.slice(1))?.scrollIntoView({
+      if (!PROJECT_SECTION_HASHES.has(currentHash)) return
+
+      document.getElementById(currentHash.slice(1))?.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       })
     }
 
-    const animationFrame = window.requestAnimationFrame(scrollToProjectZones)
-    window.addEventListener('hashchange', scrollToProjectZones)
+    const animationFrame = window.requestAnimationFrame(scrollToProjectSection)
+    window.addEventListener('hashchange', scrollToProjectSection)
 
     return () => {
       window.cancelAnimationFrame(animationFrame)
-      window.removeEventListener('hashchange', scrollToProjectZones)
+      window.removeEventListener('hashchange', scrollToProjectSection)
     }
   }, [])
 }

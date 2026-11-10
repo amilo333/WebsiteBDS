@@ -7,6 +7,20 @@ export type ProjectTabKey =
   | 'policy'
   | 'news'
 
+export type BreadcrumbItem = {
+  label: string
+  href?: string
+}
+
+export type PageBreadcrumbsProps = {
+  items: BreadcrumbItem[]
+}
+
+export type PageIntroProps = {
+  title: string
+  subtitle: string
+}
+
 export type ProjectZone = {
   id: string
   name: string
