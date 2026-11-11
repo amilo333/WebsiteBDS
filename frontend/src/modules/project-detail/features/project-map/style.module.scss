@@ -319,6 +319,10 @@
   width: 100%;
   height: 560px;
   background: #dce3e7;
+  cursor: default;
+}
+
+.viewerPanEnabled {
   cursor: grab;
 
   &:active {
@@ -409,101 +413,12 @@
   }
 }
 
-.unitInfoCard {
-  position: absolute;
-  z-index: 35;
-  right: 14px;
-  bottom: 14px;
-  overflow: hidden;
-  width: 230px;
-  border: 4px solid #fff;
-  border-radius: 9px;
-  background: #fff;
-  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.25);
-}
-
-.unitInfoHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 32px;
-  padding: 5px 6px 5px 12px;
-  border-radius: 5px;
-  background: #eef1ff;
-  color: #2355bc;
-  font-size: 12px;
-
-  button {
-    display: grid;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    place-items: center;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.08);
-    }
-  }
-
-  :global(.MuiSvgIcon-root) {
-    font-size: 17px;
-  }
-}
-
-.unitInfoHeaderHot {
-  background: #ff4146;
-  color: #fff;
-}
-
-.unitInfoBody {
-  display: grid;
-  padding: 10px 8px 7px;
-  gap: 8px;
-}
-
-.unitInfoSummary,
-.unitInfoRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #44516a;
-  font-size: 11px;
-  gap: 10px;
-}
-
-.unitInfoSummary span:last-child,
-.unitInfoRow strong {
-  color: #174a9c;
-  font-weight: 800;
-  text-align: right;
-}
-
-.soldNotice,
-.hiddenNotice,
 .inquiryStatus {
   padding: 6px 8px;
   border-radius: 5px;
   font-size: 10px;
   font-weight: 750;
   text-align: center;
-}
-
-.soldNotice {
-  background: #ffdfe1;
-  color: #d52d34;
-}
-
-.hiddenNotice {
-  background: #eef0f3;
-  color: #697386;
-}
-
-.inquiryStatus {
   background: #eef5ff;
   color: #2355bc;
   font-style: italic;
@@ -539,6 +454,14 @@
   top: 14px;
   right: 14px;
   max-width: min(420px, calc(100% - 82px));
+}
+
+.mapClickError {
+  position: absolute;
+  z-index: 30;
+  right: 14px;
+  bottom: 14px;
+  max-width: min(420px, calc(100% - 28px));
 }
 
 .marker {
@@ -722,12 +645,6 @@
 
   .unitSearch {
     width: 100%;
-  }
-
-  .unitInfoCard {
-    right: 10px;
-    bottom: 10px;
-    width: min(230px, calc(100% - 20px));
   }
 
   .markerPagination {

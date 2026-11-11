@@ -18,7 +18,12 @@ type UseMapViewerOptions = {
   visibleUnitIds: Set<string>;
   markersEnabled: boolean;
   setMarkersEnabled: Dispatch<SetStateAction<boolean>>;
-  setSelectedUnit: Dispatch<SetStateAction<ProjectMapUnit | null>>;
+  onOpenUnitDetail: (unit: ProjectMapUnit) => void;
+  onRequestInformation: (unit: ProjectMapUnit) => Promise<void>;
+  onSearchNearestUnit: (
+    imageX: number,
+    imageY: number,
+  ) => Promise<ProjectMapUnit | null>;
 };
 
 type MarkerPagination = {
@@ -96,10 +101,12 @@ export function useMapViewer({
   visibleUnitIds,
   markersEnabled,
   setMarkersEnabled,
-  setSelectedUnit,
+  onOpenUnitDetail,
+  onRequestInformation,
+  onSearchNearestUnit,
 }: UseMapViewerOptions) {
   const viewerElementRef = useRef<HTMLDivElement>(null);
-  const markerElementsRef = useRef(new Map<string, HTMLButtonElement>());
+  const markerElementsRef = useRef(new Map<string, HTMLDivElement>());
   const markerLocationsRef = useRef(new Map<string, OpenSeadragon.Point>());
   const markerUnitsRef = useRef(new Map<string, ProjectMapUnit>());
   const visibleUnitIdsRef = useRef(new Set<string>());
@@ -113,6 +120,9 @@ export function useMapViewer({
   const focusMapUnitRef = useRef<(unit: ProjectMapUnit) => void>(
     () => undefined,
   );
+  const requestInformationRef = useRef(onRequestInformation);
+  const openUnitDetailRef = useRef(onOpenUnitDetail);
+  const searchNearestUnitRef = useRef(onSearchNearestUnit);
   const [viewerError, setViewerError] = useState<string | null>(null);
   const [markerPagination, setMarkerPagination] = useState<MarkerPagination>({
     page: 1,
@@ -127,6 +137,18 @@ export function useMapViewer({
     markerPageRef.current = 1;
     updateMarkerVisibilityRef.current(true);
   }, [markersEnabled, visibleUnitIds]);
+
+  useEffect(() => {
+    requestInformationRef.current = onRequestInformation;
+  }, [onRequestInformation]);
+
+  useEffect(() => {
+    openUnitDetailRef.current = onOpenUnitDetail;
+  }, [onOpenUnitDetail]);
+
+  useEffect(() => {
+    searchNearestUnitRef.current = onSearchNearestUnit;
+  }, [onSearchNearestUnit]);
 
   useEffect(() => {
     const viewerElement = viewerElementRef.current;
@@ -153,8 +175,49 @@ export function useMapViewer({
       blendTime: 0.15,
       gestureSettingsMouse: {
         clickToZoom: false,
+        dragToPan: false,
       },
     });
+    let isSpacePressed = false;
+
+    function isEditableTarget(target: EventTarget | null) {
+      return target instanceof HTMLElement && (
+        target.isContentEditable
+        || target.tagName === 'INPUT'
+        || target.tagName === 'TEXTAREA'
+        || target.tagName === 'SELECT'
+      );
+    }
+
+    function setSpacePanEnabled(enabled: boolean) {
+      isSpacePressed = enabled;
+      viewer.gestureSettingsByDeviceType('mouse').dragToPan = enabled;
+      mapElement.classList.toggle(styles.viewerPanEnabled, enabled);
+    }
+
+    function handleSpaceKeyDown(event: KeyboardEvent) {
+      if (event.code !== 'Space'
+        || event.repeat
+        || isEditableTarget(event.target)
+        || !mapElement.matches(':hover')) return;
+
+      event.preventDefault();
+      setSpacePanEnabled(true);
+    }
+
+    function handleSpaceKeyUp(event: KeyboardEvent) {
+      if (event.code !== 'Space' || !isSpacePressed) return;
+      event.preventDefault();
+      setSpacePanEnabled(false);
+    }
+
+    function handleWindowBlur() {
+      setSpacePanEnabled(false);
+    }
+
+    window.addEventListener('keydown', handleSpaceKeyDown);
+    window.addEventListener('keyup', handleSpaceKeyUp);
+    window.addEventListener('blur', handleWindowBlur);
 
     function updateMarkerVisibility(resetPage = false) {
       const showDetails =
@@ -196,7 +259,7 @@ export function useMapViewer({
       const displayedUnitIds = new Set<string>();
       const displayedRects: PixelRect[] = [];
       const collisionWidth = showDetails ? 164 : 98;
-      const collisionHeight = showDetails ? 88 : 36;
+      const collisionHeight = showDetails ? 124 : 36;
       const markerOffsets = getMarkerOffsets(collisionWidth, collisionHeight);
       const viewerWidth = mapElement.clientWidth;
       const viewerHeight = mapElement.clientHeight;
@@ -304,9 +367,11 @@ export function useMapViewer({
       const location = usesViewportCoordinates
         ? new OpenSeadragon.Point(unit.x, unit.y)
         : tiledImage.imageToViewportCoordinates(unit.x, unit.y);
-      const marker = createMarkerElement(unit, (selected) => {
-        focusMapUnitRef.current(selected);
-      });
+      const marker = createMarkerElement(
+        unit,
+        (selected) => openUnitDetailRef.current(selected),
+        (selected) => requestInformationRef.current(selected),
+      );
 
       markerElements.set(unit.id, marker);
       markerLocations.set(unit.id, location);
@@ -327,7 +392,6 @@ export function useMapViewer({
 
       focusedUnitIdRef.current = unit.id;
       markerPageRef.current = 1;
-      setSelectedUnit(unit);
       scheduleMarkerVisibilityUpdate(true);
 
       const focusZoom = Math.min(focusZoomLevel, viewer.viewport.getMaxZoom());
@@ -352,6 +416,16 @@ export function useMapViewer({
     );
     viewer.addHandler("resize", () => scheduleMarkerVisibilityUpdate(true));
     viewer.addHandler("zoom", () => scheduleMarkerVisibilityUpdate(true));
+    viewer.addHandler("canvas-click", (event) => {
+      if (isSpacePressed || !event.quick || !tiledImage) return;
+
+      const viewportPoint = viewer.viewport.pointFromPixel(event.position, true);
+      const imagePoint = tiledImage.viewportToImageCoordinates(viewportPoint);
+      void searchNearestUnitRef.current(imagePoint.x, imagePoint.y)
+        .then((unit) => {
+          if (unit) focusMapUnitRef.current(unit);
+        });
+    });
     viewer.addHandler("open-failed", () => {
       setViewerError(
         "Không thể mở bản đồ DZI. Vui lòng kiểm tra lại file bản đồ.",
@@ -360,6 +434,10 @@ export function useMapViewer({
 
     return () => {
       if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener('keydown', handleSpaceKeyDown);
+      window.removeEventListener('keyup', handleSpaceKeyUp);
+      window.removeEventListener('blur', handleWindowBlur);
+      setSpacePanEnabled(false);
       updateMarkerVisibilityRef.current = () => undefined;
       focusMapUnitRef.current = () => undefined;
       markerElements.clear();
@@ -375,18 +453,11 @@ export function useMapViewer({
     markerLimit,
     maxZoomLevel,
     setMarkersEnabled,
-    setSelectedUnit,
     units,
   ]);
 
   const focusMapUnit = useCallback((unit: ProjectMapUnit) => {
     focusMapUnitRef.current(unit);
-  }, []);
-
-  const clearFocusedUnit = useCallback(() => {
-    focusedUnitIdRef.current = null;
-    markerPageRef.current = 1;
-    updateMarkerVisibilityRef.current(true);
   }, []);
 
   const setMarkerPage = useCallback((page: number) => {
@@ -399,7 +470,6 @@ export function useMapViewer({
     viewerElementRef, //gắn OpenSeadragon vào thẻ <div> bản đồ.
     viewerError, //chứa lỗi khi không mở được file DZI, dùng để hiện thông báo.
     focusMapUnit, //khi chọn kết quả tìm kiếm hoặc marker, bản đồ kéo đến tọa độ căn và zoom lên.
-    clearFocusedUnit, //bỏ trạng thái căn đang được focus khi đóng bảng chi tiết.
     markerPagination, //thông tin phân trang marker:
     setMarkerPage, //chuyển trang marker. Sau khi chuyển trang, hook ẩn marker trang cũ và sắp xếp lại marker trang mới theo 8 hướng.
   };

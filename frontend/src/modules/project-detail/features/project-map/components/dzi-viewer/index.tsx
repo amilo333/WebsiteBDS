@@ -1,6 +1,7 @@
 import { Alert, Box, CircularProgress, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Pagination } from '../../../../../../components/core'
 import { createUnitInquiry, searchProjectMapUnits } from '../../api'
 import {
@@ -23,17 +24,16 @@ import {
 import { MapEyeToggle } from '../map-eye-toggle'
 import { MapFilter } from '../map-filter'
 import { MapSearch } from '../map-search'
-import { UnitInfoCard } from '../unit-info-card'
 import styles from '../../style.module.scss'
 
 export function DziViewer({ projectId }: ProjectMapViewerProps) {
+  const navigate = useNavigate()
   const [searchKeyword, setSearchKeyword] = useState('')
   const [searchError, setSearchError] = useState<string | null>(null)
+  const [mapClickError, setMapClickError] = useState<string | null>(null)
   const [debouncedKeyword, setDebouncedKeyword] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
-  const [selectedUnit, setSelectedUnit] = useState<ProjectMapUnit | null>(null)
   const [searchedUnits, setSearchedUnits] = useState<ProjectMapUnit[]>([])
-  const [requestedUnitCodes, setRequestedUnitCodes] = useState<string[]>([])
   const {
     mapConfig,
     unitsData,
@@ -81,34 +81,67 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
       keyword: unitCode,
     }),
   })
+  const nearestUnitMutation = useMutation({
+    mutationFn: ({ imageX, imageY }: { imageX: number; imageY: number }) => (
+      searchProjectMapUnits(projectId, { imageX, imageY })
+    ),
+  })
   const inquiryMutation = useMutation({
     mutationFn: createUnitInquiry,
-    onSuccess: (_data, variables) => {
-      setRequestedUnitCodes((currentCodes) => currentCodes.includes(variables.unitCode)
-        ? currentCodes
-        : [...currentCodes, variables.unitCode])
-    },
   })
   const dziUrl = getDziUrl(mapConfig)
   const {
     viewerElementRef,
     viewerError,
     focusMapUnit,
-    clearFocusedUnit,
     markerPagination,
     setMarkerPage,
   } = useMapViewer({
     dziUrl,
     maxZoomLevel: getMaxZoomLevel(mapConfig),
     defaultZoomLevel: mapConfig?.desktopZoomDefault ?? 1,
-    focusZoomLevel: mapConfig?.desktopFocusZoom ?? 10,
+    focusZoomLevel: getMaxZoomLevel(mapConfig)
+      ?? mapConfig?.desktopFocusZoom
+      ?? 10,
     configuredZoomMax: mapConfig?.desktopZoomMax ?? 200,
     markerLimit: mapConfig?.countUnitViewport ?? 50,
     units,
     visibleUnitIds,
     markersEnabled: showAllUnits,
     setMarkersEnabled: setShowAllUnits,
-    setSelectedUnit,
+    onOpenUnitDetail: (unit) => {
+      navigate(`/du-an/${projectId}/can/${encodeURIComponent(unit.code)}`)
+    },
+    onRequestInformation: async (unit) => {
+      await inquiryMutation.mutateAsync({
+        projectId,
+        unitCode: unit.code,
+      })
+    },
+    onSearchNearestUnit: async (imageX, imageY) => {
+      setMapClickError(null)
+      try {
+        const result = await nearestUnitMutation.mutateAsync({ imageX, imageY })
+        const nearestUnit = normalizeProjectMapCodeUnits(result)[0] ?? null
+        if (!nearestUnit) {
+          setMapClickError('Không tìm thấy căn tại vị trí đã chọn.')
+          return null
+        }
+
+        setSearchedUnits((current) => [
+          ...current.filter((item) => (
+            item.code.localeCompare(nearestUnit.code, undefined, {
+              sensitivity: 'base',
+            }) !== 0
+          )),
+          nearestUnit,
+        ])
+        return nearestUnit
+      } catch {
+        setMapClickError('Không thể tải thông tin căn tại vị trí đã chọn.')
+        return null
+      }
+    },
   })
 
   useEffect(() => {
@@ -150,11 +183,6 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
     } catch {
       setSearchError(`Không thể tải thông tin căn ${code}. Vui lòng thử lại.`)
     }
-  }
-
-  function closeUnitDetail() {
-    clearFocusedUnit()
-    setSelectedUnit(null)
   }
 
   if (isPending) {
@@ -237,20 +265,6 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
           </div>
         )}
 
-        {selectedUnit && (
-          <UnitInfoCard
-            unit={selectedUnit}
-            hasRequested={requestedUnitCodes.includes(selectedUnit.code)}
-            isRequesting={inquiryMutation.isPending}
-            hasRequestError={inquiryMutation.isError}
-            onClose={closeUnitDetail}
-            onRequestInformation={() => inquiryMutation.mutate({
-              projectId,
-              unitCode: selectedUnit.code,
-            })}
-          />
-        )}
-
         {!showAllUnits && (
           <Alert severity="info" className={styles.filterEmpty}>
             Tất cả các căn trên bản đồ đang được ẩn.
@@ -266,6 +280,12 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
         {viewerError && (
           <Alert severity="error" className={styles.viewerError}>
             {viewerError}
+          </Alert>
+        )}
+
+        {mapClickError && (
+          <Alert severity="error" className={styles.mapClickError}>
+            {mapClickError}
           </Alert>
         )}
       </div>

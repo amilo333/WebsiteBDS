@@ -6,7 +6,6 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { useQueryClient } from '@tanstack/react-query'
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
 import ForwardToInboxOutlinedIcon from '@mui/icons-material/ForwardToInboxOutlined'
@@ -16,13 +15,13 @@ import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined'
 import { useNavigate } from 'react-router'
 import avatarImage from '../../../../assets/projects/avt.png'
 import { Button } from '../../../../components/core'
-import { clearAuthSession, useCurrentUser } from '../../../auth'
+import { useCurrentUser, useLogout } from '../../../auth'
 import styles from './style.module.scss'
 
 export function AccountPanel() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const { data: currentUser, isPending, isError } = useCurrentUser()
+  const logoutMutation = useLogout()
 
   const profileDetails = currentUser
     ? [
@@ -46,9 +45,12 @@ export function AccountPanel() {
       ]
     : []
 
-  const handleLogout = () => {
-    clearAuthSession()
-    queryClient.clear()
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync()
+    } catch {
+      // Session cục bộ vẫn được xóa trong onSettled để tránh kẹt đăng xuất.
+    }
     navigate('/dang-nhap', { replace: true })
   }
 
@@ -104,11 +106,12 @@ export function AccountPanel() {
         <Button
           fullWidth
           variant="outlined"
+          disabled={logoutMutation.isPending}
           onClick={handleLogout}
           className={`${styles.actionButton} ${styles.logoutButton}`}
           startIcon={<LogoutOutlinedIcon />}
         >
-          Đăng xuất
+          {logoutMutation.isPending ? 'Đang đăng xuất...' : 'Đăng xuất'}
         </Button>
       </Stack>
     </Box>

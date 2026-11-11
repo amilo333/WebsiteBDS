@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { InternalAxiosRequestConfig } from 'axios'
-import { refreshAccessToken } from '../modules/auth/common/api/refresh-token-api'
+import { refreshAccessToken } from '../modules/auth/api/refresh-token-api'
 import {
   clearAuthSession,
   getAuthSession,

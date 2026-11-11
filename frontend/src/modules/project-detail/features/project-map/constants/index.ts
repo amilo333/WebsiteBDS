@@ -3,10 +3,10 @@ import type { UnitTypeFilterOption } from '../types'
 export const MARKER_DETAIL_ZOOM_LEVEL = 100
 
 export const INQUIRY_STATUS_LABELS: Record<string, string> = {
-  PENDING: 'Admin sẽ liên hệ sớm nhất',
+  PENDING: 'Chờ Admin liên hệ',
   COMPLETED: 'Admin đã gửi thông tin',
   REJECTED: 'Admin từ chối yêu cầu',
-  EXPIRE: 'Yêu cầu đã hết hạn',
+  EXPIRE: 'Hết hạn',
 }
 
 export const UNIT_TYPE_FILTERS: UnitTypeFilterOption[] = [

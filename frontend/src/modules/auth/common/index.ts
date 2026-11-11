@@ -1,4 +1,3 @@
-export * from './api'
 export * from './constants/login'
 export * from './hooks'
 export * from './schemas/login-schema'

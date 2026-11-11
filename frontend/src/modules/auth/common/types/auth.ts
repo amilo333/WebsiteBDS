@@ -64,6 +64,10 @@ export type ProtectedRouteProps = {
   children: ReactNode
 }
 
+export type ProjectLoginFormProps = {
+  onSuccess: () => void
+}
+
 export type UseLoginFormOptions = {
   onSuccess?: () => void
   redirectTo?: string | null

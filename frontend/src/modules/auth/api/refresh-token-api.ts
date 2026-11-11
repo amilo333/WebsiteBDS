@@ -2,7 +2,7 @@ import axios from 'axios'
 import type {
   RefreshTokenRequest,
   RefreshTokenResponse,
-} from '../types/auth'
+} from '../common/types/auth'
 
 const refreshTokenClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,

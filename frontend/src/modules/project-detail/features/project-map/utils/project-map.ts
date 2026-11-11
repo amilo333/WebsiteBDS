@@ -67,10 +67,17 @@ function unwrapUnit(record: UnknownRecord) {
   return record
 }
 
-function isAvailable(status: string | null) {
-  if (!status) return false
+function normalizeStatusCode(status: string | null) {
+  if (!status) return null
+
   const normalizedStatus = stripVietnamese(status)
-  return AVAILABLE_STATUSES.some((item) => normalizedStatus.includes(item))
+  if (AVAILABLE_STATUSES.some((item) => normalizedStatus.includes(item))) {
+    return 'AVAILABLE'
+  }
+  if (normalizedStatus === 'sold' || normalizedStatus.includes('da ban')) {
+    return 'SOLD'
+  }
+  return status.trim().toUpperCase()
 }
 
 function normalizeUnit(
@@ -91,6 +98,7 @@ function normalizeUnit(
   const coordinateRecord = isRecord(coordinates) ? coordinates : {}
   const x = toNumber(firstValue({ ...coordinateRecord, ...record }, [
     'imgX',
+    'xPixel',
     'x',
     'mapX',
     'positionX',
@@ -99,6 +107,7 @@ function normalizeUnit(
   ]))
   const y = toNumber(firstValue({ ...coordinateRecord, ...record }, [
     'imgY',
+    'yPixel',
     'y',
     'mapY',
     'positionY',
@@ -108,23 +117,18 @@ function normalizeUnit(
 
   if (x === null || y === null) return null
 
-  const status = toStringValue(firstValue(record, [
-    'statusName',
+  const statusCode = normalizeStatusCode(toStringValue(firstValue(record, [
     'statusCode',
     'status',
-    'productStatusName',
     'productStatus',
     'inventoryStatus',
-  ]))
+  ])) ?? toStringValue(firstValue(record, [
+    'statusName',
+    'productStatusName',
+  ])))
 
-  if (availableOnly && !isAvailable(status)) return null
+  if (availableOnly && statusCode !== 'AVAILABLE') return null
 
-  const id = toStringValue(firstValue(record, [
-    'id',
-    'productId',
-    'unitId',
-    'apartmentId',
-  ])) ?? `map-unit-${index}`
   const code = toStringValue(firstValue(record, [
     'code',
     'unitCode',
@@ -132,6 +136,7 @@ function normalizeUnit(
     'apartmentCode',
     'name',
   ])) ?? `Căn ${index + 1}`
+  const id = `map-unit-${code.toLocaleUpperCase('vi-VN')}`
   const areaValue = firstValue(record, [
     'areaLand',
     'area',
@@ -175,11 +180,14 @@ function normalizeUnit(
       ? loanPriceValue
       : null,
     isHot: toBoolean(firstValue(record, ['isHot', 'hot', 'isFeatured'])),
-    statusCode: status,
-    status: status
-      ? (stripVietnamese(status) === 'available' ? 'Còn hàng' : 'Đã bán')
-      : 'Quỹ hàng Ẩn',
-    inquiryStatusCode: toStringValue(record.inquiryStatusCode),
+    statusCode,
+    status: statusCode === 'AVAILABLE'
+      ? 'Còn hàng'
+      : statusCode
+        ? 'Đã bán'
+        : 'Quỹ hàng Ẩn',
+    inquiryStatusCode: toStringValue(record.inquiryStatusCode)?.toUpperCase()
+      ?? null,
     inquiryStatusName: toStringValue(record.inquiryStatusName),
     x,
     y,
@@ -193,7 +201,7 @@ function normalizeUnits(data: unknown, availableOnly: boolean) {
     values = data
   } else if (isRecord(data)) {
     const candidate = firstValue(data, ['content', 'items', 'results', 'data'])
-    if (Array.isArray(candidate)) values = candidate
+    values = Array.isArray(candidate) ? candidate : [data]
   }
 
   return values

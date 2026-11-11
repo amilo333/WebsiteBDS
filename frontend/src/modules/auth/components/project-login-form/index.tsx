@@ -10,9 +10,9 @@ import {
   Typography,
 } from '@mui/material'
 import { useState } from 'react'
-import { Button, Field, TextField } from '../../../../../../components/core'
-import { useLoginForm } from '../../../../../auth'
-import type { ProjectLoginFormProps } from '../../types'
+import { Button, Field, TextField } from '../../../../components/core'
+import { useLoginForm } from '../../common'
+import type { ProjectLoginFormProps } from '../../common/types/auth'
 import styles from './style.module.scss'
 
 export function ProjectLoginForm({ onSuccess }: ProjectLoginFormProps) {

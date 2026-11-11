@@ -1,10 +1,9 @@
 import { Box } from '@mui/material'
 import { useState } from 'react'
 import mapPreview from '../../../../assets/projects/ocean-park-masterplan.jpg'
-import { hasAuthSession } from '../../../auth'
+import { hasAuthSession, ProjectLoginForm } from '../../../auth'
 import { useScrollToProjectSection } from '../../common'
 import { DziViewer } from './components/dzi-viewer'
-import { ProjectLoginForm } from './components/project-login-form'
 import type { ProjectMapAccessProps } from './types'
 import styles from './style.module.scss'
 

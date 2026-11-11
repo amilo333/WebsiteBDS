@@ -2,10 +2,6 @@ export type ProjectMapAccessProps = {
   projectId: number
 }
 
-export type ProjectLoginFormProps = {
-  onSuccess: () => void
-}
-
 export type ProjectMapConfig = {
   id: number
   fileExtension: string
@@ -70,6 +66,14 @@ export type ProjectMapUnitApi = {
   inquiryStatusName: string | null
   imgX: number
   imgY: number
+  xPixel?: number
+  yPixel?: number
+  x?: number
+  y?: number
+  rotation?: number
+  pageWidth?: number
+  pageHeight?: number
+  dpi?: number
 }
 
 export type SearchProjectMapUnitsParams = {
