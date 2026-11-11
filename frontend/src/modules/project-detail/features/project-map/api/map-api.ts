@@ -3,6 +3,7 @@ import type {
   ProjectMapConfig,
   ProjectMapResponse,
   ProjectMapUnitApi,
+  SearchProjectMapUnitsParams,
 } from '../types'
 
 const PROJECT_MAP_PARAMS = {
@@ -23,12 +24,16 @@ export async function getProjectMap(projectId: number) {
   return response.data.data
 }
 
-export async function searchProjectMapUnits(projectId: number) {
+export async function searchProjectMapUnits(
+  projectId: number,
+  params: SearchProjectMapUnitsParams = {},
+) {
   const response = await httpClient.post<
     ProjectMapResponse<ProjectMapUnitApi[]>
   >('/portal/map/search', {
     ...PROJECT_MAP_PARAMS,
     refId: projectId,
+    ...params,
   })
 
   return response.data.data

@@ -72,6 +72,13 @@ export type ProjectMapUnitApi = {
   imgY: number
 }
 
+export type SearchProjectMapUnitsParams = {
+  unitTypeCodes?: string[]
+  keyword?: string
+  imageX?: number
+  imageY?: number
+}
+
 export type ProjectMapResponse<TData> = {
   code: string
   message: string

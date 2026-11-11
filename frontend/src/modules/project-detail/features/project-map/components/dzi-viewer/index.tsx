@@ -2,7 +2,7 @@ import { Alert, Box, CircularProgress, Typography } from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { Pagination } from '../../../../../../components/core'
-import { createUnitInquiry } from '../../api'
+import { createUnitInquiry, searchProjectMapUnits } from '../../api'
 import {
   useMapFilters,
   useMapViewer,
@@ -32,6 +32,7 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
   const [debouncedKeyword, setDebouncedKeyword] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [selectedUnit, setSelectedUnit] = useState<ProjectMapUnit | null>(null)
+  const [searchedUnits, setSearchedUnits] = useState<ProjectMapUnit[]>([])
   const [requestedUnitCodes, setRequestedUnitCodes] = useState<string[]>([])
   const {
     mapConfig,
@@ -48,6 +49,13 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
     () => normalizeProjectMapCodeUnits(unitsData),
     [unitsData],
   )
+  const searchableUnits = useMemo(() => {
+    const unitsByCode = new Map<string, ProjectMapUnit>()
+    for (const unit of [...allMapUnits, ...searchedUnits]) {
+      unitsByCode.set(unit.code.toLocaleUpperCase('vi-VN'), unit)
+    }
+    return Array.from(unitsByCode.values())
+  }, [allMapUnits, searchedUnits])
   const {
     showAllUnits,
     setShowAllUnits,
@@ -62,12 +70,17 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
   const codeSuggestions = useMemo<CodeSuggestion[]>(
     () => (codeSearchQuery.data ?? []).slice(0, 10).map((code) => ({
       code,
-      unit: allMapUnits.find((unit) => (
+      unit: searchableUnits.find((unit) => (
         unit.code.localeCompare(code, undefined, { sensitivity: 'base' }) === 0
       )) ?? null,
     })),
-    [allMapUnits, codeSearchQuery.data],
+    [codeSearchQuery.data, searchableUnits],
   )
+  const searchedUnitMutation = useMutation({
+    mutationFn: (unitCode: string) => searchProjectMapUnits(projectId, {
+      keyword: unitCode,
+    }),
+  })
   const inquiryMutation = useMutation({
     mutationFn: createUnitInquiry,
     onSuccess: (_data, variables) => {
@@ -105,7 +118,7 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
     return () => window.clearTimeout(timeoutId)
   }, [searchKeyword])
 
-  function selectSearchUnit({ code, unit }: CodeSuggestion) {
+  async function selectSearchUnit({ code, unit }: CodeSuggestion) {
     setSearchKeyword(code)
     setDebouncedKeyword(code)
     setIsSearchFocused(false)
@@ -115,7 +128,28 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
       focusMapUnit(unit)
       return
     }
-    setSearchError(`Chưa có dữ liệu tọa độ cho căn ${code}.`)
+
+    try {
+      const result = await searchedUnitMutation.mutateAsync(code)
+      const searchedUnit = normalizeProjectMapCodeUnits(result).find((item) => (
+        item.code.localeCompare(code, undefined, { sensitivity: 'base' }) === 0
+      ))
+
+      if (!searchedUnit) {
+        setSearchError(`Chưa có dữ liệu tọa độ cho căn ${code}.`)
+        return
+      }
+
+      setSearchedUnits((current) => [
+        ...current.filter((item) => (
+          item.code.localeCompare(code, undefined, { sensitivity: 'base' }) !== 0
+        )),
+        searchedUnit,
+      ])
+      focusMapUnit(searchedUnit)
+    } catch {
+      setSearchError(`Không thể tải thông tin căn ${code}. Vui lòng thử lại.`)
+    }
   }
 
   function closeUnitDetail() {
@@ -158,7 +192,7 @@ export function DziViewer({ projectId }: ProjectMapViewerProps) {
         keyword={searchKeyword}
         searchError={searchError}
         isSearchFocused={isSearchFocused}
-        isFetching={codeSearchQuery.isFetching}
+        isFetching={codeSearchQuery.isFetching || searchedUnitMutation.isPending}
         suggestions={codeSuggestions}
         onKeywordChange={(keyword) => {
           setSearchKeyword(keyword)
